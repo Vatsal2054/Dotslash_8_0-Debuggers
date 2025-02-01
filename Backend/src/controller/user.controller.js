@@ -198,10 +198,19 @@ const ping = async (req, res) => {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId);
+    let user_details;
+    if (user.role === "doctor") {
+      user_details = await Doctor.findOne({ userId });
+    }
+    if (user.role === "patient") {
+      user_details = await Patient.findOne({ userId });
+    }
     if (!user) {
       return res.status(404).json(new ApiError(404, "User not found", false));
     }
-    res.status(200).json(new ApiResponse(200, user, "User found"));
+    const details = { ...user.toObject(), ...user_details.toObject() };
+
+    res.status(200).json(new ApiResponse(200, details, "User found"));
   } catch {
     res.status(500).json(new ApiError(500, "server error", error.message));
   }
