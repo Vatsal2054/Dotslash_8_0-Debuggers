@@ -50,11 +50,13 @@ const createAppointment = async (req, res) => {
 const getAllAppointments = async (req, res) => {
   try {
     const userId = req.user._id;
+    let user= await User.find({ userId });
     const appointments = await Appointment.find({ userId });
+    user= {...user, appointments};
     return res
       .status(200)
       .json(
-        new ApiResponse(200, appointments, "Appointments fetched successfully")
+        new ApiResponse(200, user, "Appointments fetched successfully")
       );
   } catch (err) {
     return res.status(500).json(new ApiError(500, "Server Error", err.message));
