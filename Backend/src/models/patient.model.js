@@ -2,6 +2,11 @@ import mongoose, { Schema } from "mongoose";
 
 const patientSchema = new Schema(
   {
+    userId: { 
+          type: mongoose.Schema.Types.ObjectId, 
+          ref: "User", 
+          required: true 
+        },
     dob: {
       type: Date,
       required: true,

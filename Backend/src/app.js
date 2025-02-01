@@ -33,10 +33,12 @@ app.use(
 // Routes
 import userRouter from "./routes/user.routes.js";
 import chatRouter from "./routes/chat.routes.js";
-import doctorRouter from "./routes/doctor.routes.js"
+import doctorRouter from "./routes/doctor.routes.js";
+import appointmentRouter from "./routes/appointment.routes.js";
 
 app.use("/auth", userRouter);
 app.use("/chat", chatRouter);
 app.use("/doctor", doctorRouter);
+app.use("/appointment", appointmentRouter);
 
 export default app;

@@ -1,7 +1,11 @@
 import mongoose, { Schema } from "mongoose";
 
 const doctorSchema = new Schema(
-  {
+  { userId: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: "User", 
+      required: true 
+    },
     degree: {
       type: String,
       required: true,

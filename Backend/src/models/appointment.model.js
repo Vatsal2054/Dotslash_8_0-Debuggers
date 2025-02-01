@@ -32,8 +32,17 @@ const appointmentSchema = new Schema(
     notes: {
       type: String,
     },
+    roomId: {
+      type: String,
+      required: true,
+      default: "",
+    },
   },
   {
     timestamps: true,
   }
 );
+
+const Appointment = mongoose.model("Appointment", appointmentSchema);
+
+export default Appointment;

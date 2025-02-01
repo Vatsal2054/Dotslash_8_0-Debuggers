@@ -1,11 +1,11 @@
 import User from "../models/user.model.js";
 import Patient from "../models/patient.model.js";
+import Doctor from "../models/doctor.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 const createUser = async (req, res) => {
-  console.log(req.body);
   const { firstName, lastName, email, password, role, phone, address, gender } =
     req.body;
 
@@ -69,7 +69,7 @@ const createUser = async (req, res) => {
         height,
         allergies,
         disabled,
-        user: user._id,
+        userId: user._id,
       });
 
       let patient = await newPatient.save();
@@ -83,10 +83,12 @@ const createUser = async (req, res) => {
 
     if(user.role === "doctor") {
       try{
+        console.log(req.body);
+        
       const {degree,specialization,experience,workingPlace,isAvailable}=req.body;
 
-      if(!degree || !specialization || !experience || !workingPlace || !isAvailable){
-        return res.status(400).json(new ApiError(400,"Please provide all required fields",false));
+      if(!degree || !specialization || !experience || !workingPlace){
+        return res.status(400).json(new ApiError(400,"1 Please provide all required fields",false));
       }
 
       const newDoctor = new Doctor({
@@ -95,7 +97,7 @@ const createUser = async (req, res) => {
         experience,
         workingPlace,
         isAvailable,
-        user:user._id
+        userId:user._id
       });
       let doctor = await newDoctor.save();
 
