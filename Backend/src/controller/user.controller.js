@@ -150,7 +150,7 @@ const getUser = async (req, res) => {
     res.cookie("token", token, options);
 
     // Respond with a 200 status and success message
-    res.status(200).json(new ApiResponse("Success", true)); // Corrected the response format
+    res.status(200).json(new ApiResponse(200,"Success", true)); // Corrected the response format
   } catch (error) {
     res.status(500).json(new ApiError(500, "server error", error.message));
   }
