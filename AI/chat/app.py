@@ -96,7 +96,6 @@ class MedicalSystem:
         }
     }
 
-
     def __init__(self):
         self.model = genai.GenerativeModel("gemini-pro")
 
@@ -131,61 +130,56 @@ class MedicalSystem:
 
     def analyze_medical_report(self, text: str) -> Dict[str, Any]:
         """Analyze medical report and get recommendations."""
+        # [Previous analyze_medical_report implementation remains unchanged]
+        # ... [Keep the existing implementation]
+
+    def get_precautions_and_recommendations(self, symptoms: str) -> Dict[str, Any]:
+        """Generate precautions and recommendations based on symptoms using Gemini."""
         prompt = f"""
-        Analyze this medical report as a specialized medical AI. Provide a detailed analysis in JSON format:
+        Analyze these symptoms and provide detailed precautions and recommendations in JSON format:
 
         Required JSON structure:
         {{
-            "summary": {{
-                "overview": "Brief overview of the case how diagnostic it and need to be reviewed by a specialist ",
-                "severity_assessment": "mild/moderate/severe",
-                "key_findings": ["list of important findings"],
-                "urgent_attention": "yes/no"
-                in 500 characters
+            "initial_assessment": {{
+                "severity": "mild/moderate/severe",
+                "immediate_action_required": true/false,
+                "seek_emergency": true/false
             }},
-            "symptoms": [
+            "precautions": [
                 {{
-                    "symptom": "detailed symptom",
-                    "severity": "mild/moderate/severe"
+                    "category": "category name",
+                    "measures": ["detailed precautionary measures"],
+                    "priority": "high/medium/low"
                 }}
             ],
-            "possible_diseases": [
+            "lifestyle_recommendations": [
                 {{
-                    "disease": "disease name",
-                    "confidence": "high/medium/low",
-                    "reasoning": "brief explanation"
+                    "area": "area of focus",
+                    "suggestions": ["specific actionable suggestions"],
+                    "duration": "temporary/long-term"
                 }}
             ],
-            "recommended_doctor": {{
-                "primary": {{
-                    "specialist": "main specialist needed",
-                    "urgency": "immediate/soon/routine"
-                }},
-                "secondary": {{
-                    "specialist": "additional specialist if needed",
-                    "urgency": "immediate/soon/routine"
+            "home_remedies": [
+                {{
+                    "remedy": "remedy name",
+                    "instructions": "how to apply/use",
+                    "caution": "any warnings or contraindications"
                 }}
-            }}
+            ],
+            "when_to_seek_emergency": ["list of warning signs that require immediate medical attention"]
         }}
 
-        Medical Report:
-        {text}
+        Symptoms:
+        {symptoms}
 
         Ensure the response is ONLY the JSON object with no additional text.
         """
 
         try:
             response = self.model.generate_content(prompt)
-            result = self.clean_json_response(response.text)
-            
-            if "recommended_doctor" in result:
-                specialty = result["recommended_doctor"]["primary"]["specialist"]
-                doctors = self.get_doctors_for_specialty(specialty)
-                result["available_doctors"] = doctors
-                
-            return result
+            return self.clean_json_response(response.text)
         except Exception as e:
-            return {"error": f"Analysis failed: {str(e)}", "raw_response": None}
+            return {"error": f"Precautions generation failed: {str(e)}"}
 
     @staticmethod
     def find_best_specialty(symptoms: str) -> str:
@@ -254,7 +248,7 @@ def analyze():
 
 @app.route("/recommend", methods=["POST"])
 def recommend():
-    """Handle symptom-based doctor recommendations."""
+    """Handle symptom-based doctor recommendations with dynamic precautions."""
     try:
         data = request.get_json()
         symptoms = data.get("symptoms", "")
@@ -263,14 +257,21 @@ def recommend():
             return jsonify({"error": "Symptoms are required."}), 400
 
         medical_system = MedicalSystem()
+        
+        # Get specialty and doctors
         specialty = medical_system.find_best_specialty(symptoms)
         doctors = medical_system.get_doctors_for_specialty(specialty)
+        
+        # Get dynamic precautions and recommendations
+        precautions_data = medical_system.get_precautions_and_recommendations(symptoms)
         
         response = {
             "recommended_specialty": specialty,
             "specialty_description": medical_system.SPECIALIZATIONS[specialty]["description"],
-            "available_doctors": doctors
+            "available_doctors": doctors,
+            "precautions_and_recommendations": precautions_data
         }
+        
         return jsonify(response)
             
     except Exception as e:
