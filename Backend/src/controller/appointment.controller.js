@@ -51,9 +51,6 @@ const createAppointment = async (req, res) => {
 
 
 // Import required models and utilities
-
-
-
 const getAllAppointments = async (req, res) => {
   try {
     const userId = req.user._id;
