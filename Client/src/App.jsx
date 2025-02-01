@@ -7,7 +7,11 @@ import SignUp from "./pages/Signup";
 import Appointment from "./pages/Appointment";
 import FindDoctors from "./pages/FindDoctors";
 import Chat from "./pages/ChatBot";
+<<<<<<< HEAD
 import Profile from "./pages/Profile";
+=======
+import Dashboard from "./pages/Dashboard";
+>>>>>>> d815e5355637583855d31c542362a08f2add9279
 
 function App() {
   return (
@@ -15,10 +19,17 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />}>
+<<<<<<< HEAD
             <Route path="/appointments" element={<Appointment />} />
             <Route path="/find-doctor" element={<FindDoctors />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/profile" element={<Profile />} />
+=======
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/appointments" element={<Appointment />} />
+          <Route path="/find-doctor" element={<FindDoctors />} />
+          <Route path="/chat" element={<Chat />} />
+>>>>>>> d815e5355637583855d31c542362a08f2add9279
             {/* <Route path="/" /> */}
           </Route>
           <Route path="/login" element={<Login />} />
