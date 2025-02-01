@@ -100,7 +100,7 @@ export default function PatientHome() {
       {/* Health Quote */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 p-8 rounded-2xl shadow-lg">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-blue-100 dark:bg-blue-900 rounded-full opacity-20"></div>
-        <blockquote className="relative z-10 text-2xl text-center text-gray-700 dark:text-gray-200 font-medium italic">
+        <blockquote className="relative z-10 text-[1.2rem] text-center text-background-darkLight2 dark:text-gray-200 font-medium">
           &quot;The greatest wealth is health. Taking care of your health today
           gives you better hope for tomorrow.&quot;
         </blockquote>
