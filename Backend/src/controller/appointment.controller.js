@@ -74,99 +74,94 @@ class ApiError extends Error {
 
 const getAllAppointments = async (req, res) => {
   try {
-    // Get user ID from authenticated request
     const userId = req.user._id;
-    
-    // Find all appointments for this user with populated doctor details
-    const appointments = await Appointment.find({ userId })
-      .populate({
-        path: 'doctorId',
-        model: 'User',
-        select: 'firstName lastName email phone avatar gender address'
-      })
-      .populate({
-        path: 'doctorId',
-        model: 'User',
-        // Populate doctor's professional details from Doctor model
-        populate: {
-          path: 'userId', // This should match the field in Doctor model that references User
-          model: 'Doctor',
-          select: 'degree specialization experience workingPlace isAvailable'
-        }
-      })
-      .lean();
 
-    // Check if appointments exist
-    if (!appointments || appointments.length === 0) {
-      throw new ApiError(404, "No appointments found");
+    const appointments = await Appointment.aggregate([
+      // Match appointments for the current user
+      {
+        $match: {
+          userId: userId
+        }
+      },
+      // Look up doctor's user details
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'doctorId',
+          foreignField: '_id',
+          as: 'doctorDetails'
+        }
+      },
+      // Look up doctor's professional details
+      {
+        $lookup: {
+          from: 'doctors',
+          localField: 'doctorId',
+          foreignField: 'userId',
+          as: 'professionalDetails'
+        }
+      },
+      // Unwind the arrays
+      {
+        $unwind: '$doctorDetails'
+      },
+      {
+        $unwind: {
+          path: '$professionalDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      // Format the output
+      {
+        $project: {
+          _id: 1,
+          type: 1,
+          date: 1,
+          time: 1,
+          status: 1,
+          notes: 1,
+          roomId: 1,
+          doctor: {
+            id: '$doctorDetails._id',
+            name: {
+              $concat: ['$doctorDetails.firstName', ' ', '$doctorDetails.lastName']
+            },
+            email: '$doctorDetails.email',
+            phone: '$doctorDetails.phone',
+            avatar: '$doctorDetails.avatar',
+            gender: '$doctorDetails.gender',
+            degree: '$professionalDetails.degree',
+            specialization: '$professionalDetails.specialization',
+            experience: '$professionalDetails.experience',
+            workingPlace: '$professionalDetails.workingPlace'
+          },
+          createdAt: 1,
+          updatedAt: 1
+        }
+      }
+    ]);
+
+    if (!appointments.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No appointments found"
+      });
     }
 
-    // Transform and format the appointment data
-    const formattedAppointments = appointments.map(appointment => {
-      const doctorDetails = appointment.doctorId;
-      const professionalDetails = doctorDetails?.userId || {};
-
-      return {
-        appointmentId: appointment._id,
-        type: appointment.type,
-        date: appointment.date,
-        time: appointment.time,
-        status: appointment.status,
-        notes: appointment.notes,
-        roomId: appointment.roomId,
-        doctor: {
-          id: doctorDetails?._id,
-          firstName: doctorDetails?.firstName,
-          lastName: doctorDetails?.lastName,
-          email: doctorDetails?.email,
-          phone: doctorDetails?.phone,
-          avatar: doctorDetails?.avatar,
-          gender: doctorDetails?.gender,
-          address: doctorDetails?.address,
-          degree: professionalDetails?.degree,
-          specialization: professionalDetails?.specialization,
-          experience: professionalDetails?.experience,
-          workingPlace: professionalDetails?.workingPlace,
-          isAvailable: professionalDetails?.isAvailable
-        },
-        createdAt: appointment.createdAt,
-        updatedAt: appointment.updatedAt
-      };
+    return res.status(200).json({
+      success: true,
+      data: appointments,
+      message: "Appointments retrieved successfully"
     });
 
-    // Send successful response
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          formattedAppointments,
-          "Appointments retrieved successfully"
-        )
-      );
-
   } catch (error) {
-    // If error is already an ApiError, send it directly
-    if (error instanceof ApiError) {
-      return res
-        .status(error.statusCode)
-        .json(error);
-    }
-
-    // Otherwise, send a generic server error
-    return res
-      .status(500)
-      .json(
-        new ApiError(
-          500,
-          "Error while fetching appointments",
-          error.message
-        )
-      );
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Error while fetching appointments"
+    });
   }
 };
 
-export { getAllAppointments };
 
 const updateAppointment = async (req, res) => {
   try {
