@@ -4,7 +4,11 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 const newPrescription = async (req, res) => {
   try {
-    const { user, doctor, prescription } = req.body;
+    const { userId: user, prescription } = req.body;
+    const doctor = await User.findById(req.user._id);
+    if (!doctor) {
+      throw new ApiError(401, "Unauthorized request", false);
+    }
 
     // Validate required fields
     if (
