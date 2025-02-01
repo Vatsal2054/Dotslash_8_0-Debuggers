@@ -2,6 +2,9 @@ import { createContext } from "react";
 
 export const UserContext = createContext({
     userInfo : {},
-    setUserInfo: () => {},
     role: "",
+    setUserInfo: () => {},
+    pingUser: () => {},
+    getDoctors: () => {},
+    getDoctorsByCity: () => {}
 })
