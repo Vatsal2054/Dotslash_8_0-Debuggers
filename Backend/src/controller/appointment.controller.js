@@ -64,8 +64,15 @@ const getAllAppointments = async (req, res) => {
 const getAppointmentById = async (req, res) => {
   try {
     const userId = req.user._id;
+    let user = await User.find({ userId });
+    if (!user) {
+      return res
+        .status(404)
+        .json(new ApiError(404, "User not found", false));
+    }
     const appointmentId = req.params.id;
     const appointment = await Appointment.findOne({ _id: appointmentId });
+    user= {...user, appointment};
     if (!appointment) {
       return res
         .status(404)
@@ -74,7 +81,7 @@ const getAppointmentById = async (req, res) => {
     return res
       .status(200)
       .json(
-        new ApiResponse(200, appointment, "Appointment fetched successfully")
+        new ApiResponse(200, user, "Appointment fetched successfully")
       );
   } catch (err) {
     return res.status(500).json(new ApiError(500, "Server Error", err.message));
