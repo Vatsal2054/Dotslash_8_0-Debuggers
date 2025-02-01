@@ -8,19 +8,20 @@ import {
   getAllAppointments,
   updateAppointment,
   declineAppointment,
-  getAppointmentById,
   joinAppointment,
+  getAllPatientAppointments,
 } from "../controller/appointment.controller.js";
 
 const router = Router();
 
-router.get("/", isAuthenticated, getAllAppointments);
+router.get("/", isAuthenticated,isPatient, getAllAppointments);
+router.get("/appointments", isAuthenticated, isDoctor, getAllPatientAppointments);
 router.post("/", isAuthenticated, isPatient, createAppointment);
 router.put("/:id", isAuthenticated, updateAppointment);
 router.delete("/:id", isAuthenticated, isPatient, deleteAppointment);
 router.put("/approve/:id", isAuthenticated, isDoctor, approveAppointment);
 router.put("/decline/:id", isAuthenticated, isDoctor, declineAppointment);
-router.get("/:id", isAuthenticated, getAppointmentById);
+// router.get("/:id", isAuthenticated, getAppointmentById);
 router.get("/join/:id", isAuthenticated, joinAppointment);
 
 export default router;
