@@ -21,7 +21,7 @@ export default function DoctorHome() {
         {
             title: "Total Patients",
             value: "145",
-            color: "from-green-500 to-green-600",
+            color: "from-emerald-400 to-green",
             icon: <HiOutlineUsers className="w-6 h-6" />
         },
         {
