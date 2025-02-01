@@ -22,7 +22,7 @@ const createUser = async (req, res) => {
   ) {
     return res
       .status(400)
-      .json(new ApiError(400, "Please provide all required fields", false));
+      .json(new ApiError(400, "1 Please provide all required fields", false));
   }
 
   try {
@@ -51,7 +51,7 @@ const createUser = async (req, res) => {
     });
 
     // Save the user to the database
-    let user = await newUser.save();
+    
 
     // Handling patient-specific data if the role is 'patient'
     if (user.role === "patient") {
@@ -73,9 +73,6 @@ const createUser = async (req, res) => {
       });
 
       let patient = await newPatient.save();
-
-      // Attach patient info to the user object
-      user = { ...user.toObject(), patient }; // Ensure patient data is associated correctly
     }catch(error){
       return res.status(500).json(new ApiError(500, "server error", error.message));
     }
@@ -99,11 +96,11 @@ const createUser = async (req, res) => {
       });
       let doctor = await newDoctor.save();
 
-      user = {...user.toObject(),doctor};
+      
     }catch(error){
       return res.status(500).json(new ApiError(500,"server error",error.message));
     }}
-
+    let user = await newUser.save();
     // Remove password before responding
     delete user.password;
 
