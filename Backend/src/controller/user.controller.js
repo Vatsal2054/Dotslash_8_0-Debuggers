@@ -58,7 +58,7 @@ const createUser = async (req, res) => {
       try{
       const { dob, bloodGroup, weight, height, allergies, disabled } = req.body;
 
-      if (!dob || !bloodGroup || !weight || !height || !allergies || !disabled) {
+      if (!dob || !bloodGroup || !weight || !height || !allergies ) {
         return res.status(400).json(new ApiError(400, "Please provide all required fields", false));
       }
 
