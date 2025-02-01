@@ -278,6 +278,5 @@ export {
   deleteAppointment,
   approveAppointment,
   declineAppointment,
-  getAppointmentById,
   joinAppointment
 };
