@@ -1,9 +1,11 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { PatientInputStructure, PatientStructure } from "../helpers/Data/SignUp_Structures"
 import Input from "../components/UI/Inputs";
 import { Logo } from "../components/UI/Logo";
 import Container from "../components/UI/Container";
 import Button from "../components/UI/Buttons";
+import { AuthContext } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function PatientSignUp() {
     const [patientInfo, setPatientInfo] = useState(PatientStructure);
@@ -11,6 +13,8 @@ export default function PatientSignUp() {
         field: "",
         message: ""
     })
+
+    const { signUpUser } = useContext(AuthContext);
 
     function verifyEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -40,7 +44,20 @@ export default function PatientSignUp() {
             });
             return;
         }
-        
+        const res = await signUpUser({
+            ...patientInfo,
+            role: "patient",
+            address: {
+                street: patientInfo.street,
+                city: patientInfo.city,
+                state: patientInfo.state,
+                zip: patientInfo.zip,
+            },
+            disabled: patientInfo.disabled === "Yes" ? true : false
+        });
+        if(!res){
+            toast.error("An error occurred while signing up the user");
+        }
     }
 
     return (

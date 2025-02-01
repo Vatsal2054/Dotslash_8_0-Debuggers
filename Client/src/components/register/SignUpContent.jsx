@@ -23,10 +23,10 @@ export default function SignupContent() {
 
     return (
         <main className="flex flex-col items-center justify-center h-[100vh]">
-            <div className={"p-6 w-[30%]"}>
+            <div className={"p-6 w-[35%]"}>
                 <div className="mb-2">
-                    <Logo size={"35"} />
-                    <h1 className="mt-2 text-3xl font-[400]">What's your role?</h1>
+                    <Logo size={50} className="pb-3" />
+                    <h1 className="mt-2 text-[2.3rem] font-[300]">What's your role?</h1>
                 </div>
                 <Input
                     Type={"PRIMARY"}
@@ -41,6 +41,9 @@ export default function SignupContent() {
                 <Button type={"MAIN"} onClick={handleSubmit}>
                     Continue
                 </Button>
+                <div className="pt-5 text-[15px] text-center text-font-grey dark:text-font-darkGrey">
+                    Already have an account? <Link to={"/login"} className="text-font-dark dark:text-font-light hover:text-primary dark:hover:text-primary">Login</Link>
+                </div>
             </div>
         </main>
     )

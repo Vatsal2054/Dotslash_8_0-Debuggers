@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import Button from "../UI/Buttons";
 import Input from "../UI/Inputs";
-import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router";
 import { Logo } from "../UI/Logo";
@@ -12,7 +11,7 @@ export default function LoginContent() {
         message: ""
     });
 
-    const { credentials, setCredentials, loginUser, googleLogin } = useContext(AuthContext);
+    const { credentials, setCredentials, loginUser } = useContext(AuthContext);
 
     const navigate = useNavigate();
 
@@ -111,7 +110,7 @@ export default function LoginContent() {
                             >
                                 Login
                             </Button>
-                            <div className="w-full mb-4 flex items-center">
+                            {/* <div className="w-full mb-4 flex items-center">
                                 <div className="text-sm pr-2 dark:text-font-darkGrey text-font-grey">Or continue with</div>
                                 <div className="flex-1 h-[1px] dark:bg-font-darkGrey bg-font-grey"></div>
                             </div>
@@ -121,7 +120,7 @@ export default function LoginContent() {
                                 extraClasses={"mb-4"}
                             >
                                 <FcGoogle className="inline-block text-xl mb-[2px]" /> Sign in using Google
-                            </Button>
+                            </Button> */}
                             <div className="pt-2 text-[15px] text-center text-font-grey dark:text-font-darkGrey">
                                 Don&apos;t have an account? <Link to={"/signup"} className="text-font-dark dark:text-font-light hover:text-primary dark:hover:text-primary">Sign up</Link>
                             </div>

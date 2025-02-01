@@ -2,7 +2,9 @@ import { useState } from "react";
 import { UserContext } from "./UserContext";
 
 export default function UserContextProvider({ children }) {
-    const [userInfo, setUserInfo] = useState({});
+    const [userInfo, setUserInfo] = useState({
+        role: "patient"
+    });
     
     function setUserData(data){
         setUserInfo(data);
@@ -11,6 +13,7 @@ export default function UserContextProvider({ children }) {
     const ctxValue = {
         userInfo: userInfo,
         setUserInfo: setUserData,
+        role: userInfo.role,
     }
 
     return (
