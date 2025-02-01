@@ -152,13 +152,13 @@ const getAllPatientAppointments = async (req, res) => {
       },
       {
         $addFields: {
-          doctor: { $mergeObjects: ["$user", "$patient_details"] },
+          doctor: { $mergeObjects: ["$user", "$user_details"] },
         },
       },
       {
         $project: {
           "user._id": 0, // Optionally hide duplicate _id fields
-          patient_details: 0, // Remove the now redundant doctor_details field
+          user_details: 0, // Remove the now redundant doctor_details field
         },
       },
     ]);

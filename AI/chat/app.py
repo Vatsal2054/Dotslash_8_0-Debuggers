@@ -1,221 +1,182 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.output_parser import StrOutputParser
-import json
 import os
 from pymongo import MongoClient
+from bson import ObjectId
+import json
+import logging
+
+# Basic logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class MongoJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        return super().default(obj)
 
 # Load environment variables
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 mongo_uri = os.getenv("MONGO_URI")
 
-# MongoDB setup
-db_client = MongoClient(mongo_uri)
-db = db_client["test"]
-doctors_collection = db["doctors"]
-users_collection = db["users"]
+if not mongo_uri:
+    raise ValueError("MONGO_URI environment variable is not set")
 
-# Initialize the model
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", google_api_key=api_key)
+# Initialize Flask app
+app = Flask(__name__)
+CORS(app)
+app.json_encoder = MongoJSONEncoder
 
-# Specialization mapping with keywords and descriptions
+# MongoDB setup with error handling
+try:
+    # Connect to MongoDB Atlas
+    db_client = MongoClient(
+        mongo_uri,
+        serverSelectionTimeoutMS=5000,
+        connectTimeoutMS=5000,
+        socketTimeoutMS=6000,
+        retryWrites=True,
+        tls=True,
+        tlsAllowInvalidCertificates=True
+    )
+    
+    # Test connection
+    db_client.server_info()
+    logger.info("MongoDB Atlas connection successful!")
+    
+    db = db_client.get_database()
+    doctors_collection = db["doctors"]
+    users_collection = db["users"]
+    
+except Exception as e:
+    logger.error(f"MongoDB connection error: {str(e)}")
+    raise
+
+# Initialize the model with optimized settings
+llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-pro",
+    google_api_key=api_key,
+    temperature=0.3,
+    timeout=2,
+    max_retries=1
+)
+
 SPECIALIZATIONS = {
     "Orthopaedic": {
-        "keywords": ["bone", "joint", "muscle", "fracture", "sprain", "arthritis", "back pain"],
+        "keywords": ["bone", "joint", "muscle", "fracture"],
         "description": "Musculoskeletal conditions and injuries"
     },
-    "Dermtologists": {
-        "keywords": ["skin", "acne", "rash", "eczema", "dermatitis", "moles", "skin infection"],
-        "description": "Skin, hair, and nail conditions"
+    "Dermatologists": {
+        "keywords": ["skin", "acne", "rash"],
+        "description": "Skin conditions"
     },
     "Neurologist": {
-        "keywords": ["headache", "migraine", "seizure", "nerve", "brain", "dizziness", "numbness"],
-        "description": "Brain, spine, and nervous system disorders"
+        "keywords": ["headache", "brain", "nerve"],
+        "description": "Brain and nerve disorders"
     },
     "Cardiologist": {
-        "keywords": ["heart", "chest pain", "palpitations", "blood pressure", "cardiovascular"],
-        "description": "Heart and cardiovascular conditions"
+        "keywords": ["heart", "chest", "blood pressure"],
+        "description": "Heart conditions"
     },
     "Pediatrician": {
-        "keywords": ["child", "children", "infant", "baby", "pediatric", "childhood"],
-        "description": "Children's health and development"
+        "keywords": ["child", "baby", "infant"],
+        "description": "Children's health"
     },
-    "Psychiatrist ": {
-        "keywords": ["anxiety", "depression", "mental", "mood", "stress", "sleep", "psychiatric"],
-        "description": "Mental health and behavioral conditions"
+    "Psychiatrist": {
+        "keywords": ["anxiety", "depression", "mental"],
+        "description": "Mental health"
     },
     "General Medicine": {
-        "keywords": ["fever", "cold", "flu", "cough", "general", "fatigue", "common"],
-        "description": "General health conditions and primary care"
+        "keywords": ["fever", "cold", "cough"],
+        "description": "General health"
     }
 }
 
-# Create the symptom analysis chain
-symptom_prompt = """You are a healthcare assistant. Based on these symptoms: {symptoms}, 
-identify the most appropriate medical specialist from this list only:
-- Orthopaedics
-- Dermtologists
-- Neurologist
-- Cardiologist
-- Pediatrician
-- Psychiatrist 
-- General Medicine
-
-Respond in this format:
-Specialist: [specialty name from the list above]
-Reason: [brief explanation]
-Please keep the response concise and direct."""
-
-symptom_chain = (
-    ChatPromptTemplate.from_messages([
-        ("system", "You are a healthcare assistant. Provide concise, focused responses."),
-        ("human", symptom_prompt)
-    ])
-    | llm
-    | StrOutputParser()
-)
-
-def find_best_specialty(symptoms, llm_response):
-    """
-    Find the most appropriate specialty based on both symptoms and LLM response.
-    Returns tuple of (specialty, confidence_score, matched_keywords)
-    """
+def find_best_specialty(symptoms):
     symptoms_lower = symptoms.lower()
-    llm_response_lower = llm_response.lower()
-    
-    best_match = {
-        "specialty": None,
-        "score": 0,
-        "keywords": []
-    }
-    
     for specialty, info in SPECIALIZATIONS.items():
-        score = 0
-        matched_keywords = []
-        
-        # Check keywords in original symptoms
         for keyword in info["keywords"]:
-            if keyword.lower() in symptoms_lower:
-                score += 2
-                matched_keywords.append(keyword)
-        
-        # Check keywords in LLM response
-        for keyword in info["keywords"]:
-            if keyword.lower() in llm_response_lower:
-                score += 1
-                if keyword not in matched_keywords:
-                    matched_keywords.append(keyword)
-        
-        # Check if specialty name is mentioned in LLM response
-        if specialty.lower() in llm_response_lower:
-            score += 3
-        
-        if score > best_match["score"]:
-            best_match = {
-                "specialty": specialty,
-                "score": score,
-                "keywords": matched_keywords
-            }
-    
-    # Default to General Medicine if no good match found
-    if best_match["score"] == 0:
-        return "General Medicine", 0, []
-    
-    return best_match["specialty"], best_match["score"], best_match["keywords"]
+            if keyword in symptoms_lower:
+                return specialty
+    return "General Medicine"
 
 def get_doctors_for_specialty(specialty):
-    """Fetch available doctors with their user information for the recommended specialty."""
     try:
-        # Find doctors with the given specialization
-        available_doctors = list(doctors_collection.aggregate([
-            {
-                "$match": {
-                    "specialization": specialty,
-                    "isAvailable": True
-                }
-            },
-            {
-                "$lookup": {
-                    "from": "users",
-                    "localField": "userId",
-                    "foreignField": "_id",
-                    "as": "user"
-                }
-            },
-            {
-                "$unwind": "$user"
-            },
-            {
-                "$match": {
-                    "user.role": "doctor"
-                }
-            },
-            {
-                "$project": {
-                    "degree": 1,
-                    "experience": 1,
-                    "workingPlace": 1,
-                    "firstName": "$user.firstName",
-                    "lastName": "$user.lastName",
-                    "city": "$user.address.city",
-                    "state": "$user.address.state"
-                }
-            }
-        ]))
+        # Find doctors with the given specialty
+        doctor_cursor = doctors_collection.find(
+            {"specialization": specialty, "isAvailable": True},
+            {"userId": 1, "degree": 1, "experience": 1}
+        ).limit(5)
         
-        if not available_doctors:
-            return f"No doctors currently available for {specialty}. Please try again later or contact our help desk."
-        
-        doctor_list = []
-        for doctor in available_doctors:
-            doctor_info = (
-                f"Dr. {doctor.get('firstName', '')} {doctor.get('lastName', '')} "
-                f"({doctor.get('degree', 'MD')})\n"
-                f"Experience: {doctor.get('experience', 0)} years\n"
-                f"Location: {doctor.get('city', '')}, {doctor.get('state', '')}\n"
-                f"Working at: {doctor.get('workingPlace', '')}\n"
+        doctors = []
+        for doctor in doctor_cursor:
+            # Get corresponding user details
+            user = users_collection.find_one(
+                {"_id": doctor.get("userId")},
+                {"firstName": 1, "lastName": 1, "address.city": 1}
             )
-            doctor_list.append(doctor_info)
+            
+            if user:
+                doctors.append({
+                    "doctorId": str(doctor["_id"]),
+                    "name": f"{user.get('firstName', '')} {user.get('lastName', '')}",
+                    "degree": doctor.get("degree", ""),
+                    "experience": doctor.get("experience", ""),
+                    "location": user.get("address", {}).get("city", "")
+                })
         
-        return "\n".join(doctor_list)
+        return doctors
     except Exception as e:
-        return f"Error retrieving doctor information: {str(e)}"
+        logger.error(f"Database error: {str(e)}")
+        return []
 
-def get_response(symptoms):
-    """Process symptoms and return structured response with confidence levels"""
+@app.route("/recommend", methods=["POST"])
+def recommend():
     try:
-        # Get LLM analysis
-        llm_response = symptom_chain.invoke({"symptoms": symptoms})
+        data = request.get_json()
+        symptoms = data.get("symptoms", "")
         
-        # Find best specialty match
-        specialty, confidence_score, matched_keywords = find_best_specialty(symptoms, llm_response)
+        if not symptoms:
+            return jsonify({"error": "Symptoms are required."}), 400
+
+        specialty = find_best_specialty(symptoms)
         
-        # Get available doctors
+        if specialty == "General Medicine":
+            try:
+                prompt = ChatPromptTemplate.from_messages([
+                    ("system", "You are a healthcare assistant. Provide only the specialist name."),
+                    ("human", f"Based on these symptoms: {symptoms}, identify the most appropriate medical specialist from this list: {list(SPECIALIZATIONS.keys())}. Respond with just the specialist name.")
+                ])
+                
+                chain = prompt | llm | StrOutputParser()
+                llm_response = chain.invoke({})
+                
+                if any(spec.lower() in llm_response.lower() for spec in SPECIALIZATIONS):
+                    specialty = next(
+                        spec for spec in SPECIALIZATIONS 
+                        if spec.lower() in llm_response.lower()
+                    )
+            except Exception as e:
+                logger.error(f"LLM error: {str(e)}")
+
         doctors = get_doctors_for_specialty(specialty)
         
-        # Create detailed response
-        response = (
-            f"Analysis:\n{llm_response}\n\n"
-            f"Recommended Specialty: {specialty}\n"
-            f"Specialty Focus: {SPECIALIZATIONS[specialty]['description']}\n"
-        )
-        
-        if matched_keywords:
-            response += f"Matched Symptoms: {', '.join(matched_keywords)}\n"
-        
-        response += f"\nAvailable Doctors:\n{doctors}"
-        
-        return response
-        
+        response = {
+            "recommended_specialty": specialty,
+            "specialty_focus": SPECIALIZATIONS[specialty]["description"],
+            "available_doctors": doctors
+        }
+        return jsonify(response)
+            
     except Exception as e:
-        return f"An error occurred: {str(e)}"
+        logger.error(f"Request error: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred."}), 500
 
 if __name__ == "__main__":
-    while True:
-        symptoms_input = input("\nDescribe your symptoms (or type 'exit' to quit): ")
-        if symptoms_input.lower() == 'exit':
-            break
-        response = get_response(symptoms_input)
-        print("\n" + response)
+    app.run(host="0.0.0.0", port=8080)
