@@ -55,7 +55,7 @@ export default function PatientHome() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <button
-          onClick={() => navigate("/chatbot")}
+          onClick={() => navigate("/chat")}
           className="group relative overflow-hidden p-8 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
         >
           <div className="relative z-10">
