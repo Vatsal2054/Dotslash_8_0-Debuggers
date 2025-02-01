@@ -20,10 +20,10 @@ export const PatientNavContentInfo = [
         fillIcon: <PiMagnifyingGlassDuotone  />
     },
     {
-        name: "Settings",
-        path: "/settings",
-        icon: <PiGearSix />,
-        fillIcon: <PiGearSixDuotone />
+        name: "Profile",
+        path: "/profile",
+        icon: <PiUserCircle />,
+        fillIcon: <PiUserCircleDuotone />
     }
 ]
 
@@ -41,16 +41,10 @@ export const DoctorNavContentInfo = [
         fillIcon: <PiUserCircleDuotone />
     },
     {
-        name: "History",
-        path: "/history",
-        icon: <PiChats />,
-        fillIcon: <PiChatsDuotone />
-    },
-    {
-        name: "Settings",
-        path: "/settings",
-        icon: <PiGearSix />,
-        fillIcon: <PiGearSixDuotone />
+        name: "Profile",
+        path: "/profile",
+        icon: <PiUserCircle />,
+        fillIcon: <PiUserCircleDuotone />
     }
 ]
 

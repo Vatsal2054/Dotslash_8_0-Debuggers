@@ -2,7 +2,7 @@ import { Mail, Phone, MapPin, User } from "lucide-react";
 import { useContext } from "react";
 import { UserContext } from "../context/UserContext";
 
-const Profile = ({ user }) => {
+const Profile = () => {
     const { userInfo } = useContext(UserContext);
 
     if (!userInfo) return <div className="text-center text-gray-500">No user data available.</div>;
@@ -58,10 +58,10 @@ const Profile = ({ user }) => {
                 {/* Additional Details for Doctors */}
                 {role === "doctor" && (
                     <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                        <p className="text-gray-700 dark:text-gray-300">
+                        <p className="text-gray-700 dark:text-gray-300 mb-2">
                             <span className="font-medium">Specialization:</span> {userInfo.specialization || "N/A"}
                         </p>
-                        <p className="text-gray-700 dark:text-gray-300">
+                        <p className="text-gray-700 dark:text-gray-300 mb-2">
                             <span className="font-medium">Experience:</span> {userInfo.experience || "N/A"} years
                         </p>
                         <p className="text-gray-700 dark:text-gray-300">

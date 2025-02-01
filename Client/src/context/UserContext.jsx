@@ -10,4 +10,7 @@ export const UserContext = createContext({
     getDoctorsByCity: () => {},
     getAppointments: () => {},
     bookAppointment: () => {},
+    acceptRequest: () => {},
+    declineRequest: () => {},
+    joinAppointment: () => {},
 })

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { UserContext } from "./UserContext";
 import getApi from "../helpers/API/getApi";
 import postApi from "../helpers/API/postApi";
+import putApi from "../helpers/API/putApi";
 import toast from "react-hot-toast";
 
 export default function UserContextProvider({ children }) {
@@ -90,6 +91,39 @@ export default function UserContextProvider({ children }) {
         return false
     }
 
+    async function handleAcceptAppointment(appointmentId){
+        const res = await putApi(`/appointment/approve/${appointmentId}`);
+        console.log(res);
+        if(res.status === 200){
+            toast.success("Appointment accepted successfully");
+            console.log("Appointment accepted successfully");
+            return true;
+        }
+        return false;
+    }
+
+    async function handleDeclineAppointment(appointmentId){
+        const res = await putApi(`/appointment/decline/${appointmentId}`);
+        console.log(res);
+        if(res.status === 200){
+            toast.success("Appointment declined successfully");
+            console.log("Appointment declined successfully");
+            return true;
+        }
+        return false;
+    }
+
+    async function handleJoinAppointment(appointmentId){
+        const res = await putApi(`/appointment/join/${appointmentId}`);
+        console.log(res);
+        if(res.status === 200){
+            // toast.success("Appointment joined successfully");
+            console.log("Appointment joined successfully");
+            return res.data.data;
+        }
+        return false;
+    }
+
     const ctxValue = {
         userInfo: userInfo,
         setUserInfo: setUserData,
@@ -98,7 +132,10 @@ export default function UserContextProvider({ children }) {
         getDoctors: handleGetDoctors,
         getDoctorsByCity: handleGetDoctorsByCity,
         getAppointments: handleGetAppointments,
-        bookAppointment: handleBookAppointment
+        bookAppointment: handleBookAppointment,
+        acceptRequest: handleAcceptAppointment,
+        declineRequest: handleDeclineAppointment,
+        joinAppointment: handleJoinAppointment,
     }
 
     return (

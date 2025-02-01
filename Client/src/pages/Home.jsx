@@ -1,6 +1,5 @@
 import { useContext, useEffect } from "react";
 import { UserContext } from "../context/UserContext";
-
 import HomeLayout from "../components/Homepage/HomeLayout";
 import { useNavigate } from "react-router";
 
