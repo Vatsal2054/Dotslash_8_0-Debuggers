@@ -4,7 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { rateLimit } from "express-rate-limit";
-import userRouter from "user.routes.js";
+import userRouter from './routes/user.routes';
 dotenv.config();
 
 const limiter = rateLimit({

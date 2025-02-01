@@ -89,10 +89,16 @@ const getUser = async (req, res) => {
     res.cookie("token", token, options);
 
     // Respond with a 200 status and success message
-    res.status(200).json(new ApiResponse("Success", true)); // Corrected the response format
+    res.status(200).json(new ApiResponse("Success", true)); 
   } catch (error) {
     res.status(500).json(new ApiResponse(error.message, false));
   }
 };
 
-export { createUser, getUser };
+const logout = (req, res) => {
+
+  res.clearCookie("token");
+  res.status(200).json(new ApiResponse("Logged out successfully", true)); 
+}
+
+export { createUser, getUser, logout };
