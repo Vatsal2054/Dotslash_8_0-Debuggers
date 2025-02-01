@@ -55,56 +55,76 @@ const createUser = async (req, res) => {
 
     // Handling patient-specific data if the role is 'patient'
     if (user.role === "patient") {
-      try{
-      const { dob, bloodGroup, weight, height, allergies, disabled } = req.body;
+      try {
+        const { dob, bloodGroup, weight, height, allergies, disabled } =
+          req.body;
 
-      if (!dob || !bloodGroup || !weight || !height || !allergies ) {
-        return res.status(400).json(new ApiError(400, "Please provide all required fields", false));
+        if (!dob || !bloodGroup || !weight || !height || !allergies) {
+          return res
+            .status(400)
+            .json(
+              new ApiError(400, "Please provide all required fields", false)
+            );
+        }
+
+        const newPatient = new Patient({
+          dob,
+          bloodGroup,
+          weight,
+          height,
+          allergies,
+          disabled,
+          userId: user._id,
+        });
+
+        let patient = await newPatient.save();
+
+        // Attach patient info to the user object
+        user = { ...user.toObject(), patient }; // Ensure patient data is associated correctly
+      } catch (error) {
+        return res
+          .status(500)
+          .json(new ApiError(500, "server error", error.message));
       }
-
-      const newPatient = new Patient({
-        dob,
-        bloodGroup,
-        weight,
-        height,
-        allergies,
-        disabled,
-        userId: user._id,
-      });
-
-      let patient = await newPatient.save();
-
-      // Attach patient info to the user object
-      user = { ...user.toObject(), patient }; // Ensure patient data is associated correctly
-    }catch(error){
-      return res.status(500).json(new ApiError(500, "server error", error.message));
-    }
     }
 
-    if(user.role === "doctor") {
-      try{
+    if (user.role === "doctor") {
+      try {
         console.log(req.body);
-        
-      const {degree,specialization,experience,workingPlace,isAvailable}=req.body;
 
-      if(!degree || !specialization || !experience || !workingPlace){
-        return res.status(400).json(new ApiError(400,"1 Please provide all required fields",false));
+        const {
+          degree,
+          specialization,
+          experience,
+          workingPlace,
+          isAvailable,
+        } = req.body;
+
+        if (!degree || !specialization || !experience || !workingPlace) {
+          return res
+            .status(400)
+            .json(
+              new ApiError(400, "1 Please provide all required fields", false)
+            );
+        }
+
+        const newDoctor = new Doctor({
+          degree,
+          specialization,
+          experience,
+          workingPlace,
+          isAvailable,
+          userId: user._id,
+        });
+        let doctor = await newDoctor.save();
+
+        user = { ...user.toObject(), doctor };
+      } catch (error) {
+        return res
+          .status(500)
+          .json(new ApiError(500, "server error", error.message));
       }
-
-      const newDoctor = new Doctor({
-        degree,
-        specialization,
-        experience,
-        workingPlace,
-        isAvailable,
-        userId:user._id
-      });
-      let doctor = await newDoctor.save();
-
-      user = {...user.toObject(),doctor};
-    }catch(error){
-      return res.status(500).json(new ApiError(500,"server error",error.message));
-    }}
+    }
 
     // Remove password before responding
     delete user.password;
@@ -125,7 +145,7 @@ const getUser = async (req, res) => {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json(new ApiError(401,"User not found", false));
+      return res.status(404).json(new ApiError(401, "User not found", false));
     }
 
     // Compare the provided password with the stored hashed password
@@ -150,7 +170,7 @@ const getUser = async (req, res) => {
     res.cookie("token", token, options);
 
     // Respond with a 200 status and success message
-    res.status(200).json(new ApiResponse(200,"Success", true)); // Corrected the response format
+    res.status(200).json(new ApiResponse(200, "Success", true)); // Corrected the response format
   } catch (error) {
     res.status(500).json(new ApiError(500, "server error", error.message));
   }
@@ -158,27 +178,33 @@ const getUser = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    
-
     // Clear the cookie with matching options as login
     const options = {
       httpOnly: true,
       secure: true,
       sameSite: "None",
-    }
-    res.clearCookie("token", options)
+    };
+    res.clearCookie("token", options);
 
-    res.status(200).json(
-      new ApiResponse(200, null,"Logged out successfully")
-    )
+    res.status(200).json(new ApiResponse(200, null, "Logged out successfully"));
   } catch (error) {
-    res.status(500).json(
-      new ApiError(500, "Error during logout", error.message)
-    )
+    res
+      .status(500)
+      .json(new ApiError(500, "Error during logout", error.message));
   }
-}
+};
 
+const ping = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json(new ApiError(404, "User not found", false));
+    }
+    res.status(200).json(new ApiResponse(200, user, "User found"));
+  } catch {
+    res.status(500).json(new ApiError(500, "server error", error.message));
+  }
+};
 
-
-
-export { createUser, getUser, logout };
+export { createUser, getUser, logout, ping };

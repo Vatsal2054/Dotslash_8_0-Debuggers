@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import Button from "../UI/Buttons";
 import Input from "../UI/Inputs";
-import { FcGoogle } from "react-icons/fc";
 import { AuthContext } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router";
 import { Logo } from "../UI/Logo";
@@ -12,7 +11,7 @@ export default function LoginContent() {
         message: ""
     });
 
-    const { credentials, setCredentials, loginUser, googleLogin } = useContext(AuthContext);
+    const { credentials, setCredentials, loginUser } = useContext(AuthContext);
 
     const navigate = useNavigate();
 
@@ -69,13 +68,8 @@ export default function LoginContent() {
     return (
         <main>
             <div className="w-[100vw] h-[100vh] p-8 flex flex-row">
-                <section className="h-[100%] flex-[6] sm:hidden md:block rounded-xl overflow-hidden bg-loginBackground bg-cover bg-right bg-no-repeat flex items-center justify-start">
-                    <div className="relative z-[-2] p-8 w-[80%] h-[100%] rounded-xl bg-background-light dark:bg-background-dark">
-                        {/* <h1 className="text-2xl">Welcome back!</h1> */}
-                    </div>
-                </section>
                 <section className="flex-[4] flex justify-center items-center">
-                    <div className="w-[70%] flex flex-col">
+                    <div className="w-[30%] flex flex-col">
                         <Logo size={50} className="pb-3" />
                         <h1 className="text-[2.6rem] mb-4 font-medium stretched flex justify-between items-center">
                             <span>
@@ -116,7 +110,7 @@ export default function LoginContent() {
                             >
                                 Login
                             </Button>
-                            <div className="w-full mb-4 flex items-center">
+                            {/* <div className="w-full mb-4 flex items-center">
                                 <div className="text-sm pr-2 dark:text-font-darkGrey text-font-grey">Or continue with</div>
                                 <div className="flex-1 h-[1px] dark:bg-font-darkGrey bg-font-grey"></div>
                             </div>
@@ -126,7 +120,7 @@ export default function LoginContent() {
                                 extraClasses={"mb-4"}
                             >
                                 <FcGoogle className="inline-block text-xl mb-[2px]" /> Sign in using Google
-                            </Button>
+                            </Button> */}
                             <div className="pt-2 text-[15px] text-center text-font-grey dark:text-font-darkGrey">
                                 Don&apos;t have an account? <Link to={"/signup"} className="text-font-dark dark:text-font-light hover:text-primary dark:hover:text-primary">Sign up</Link>
                             </div>

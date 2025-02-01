@@ -10,12 +10,6 @@ export default function AuthContextProvider({children}) {
         email: '',
         password: ''
     })
-    
-    const [signUpCredentials, setSignUpCredentials] = useState({
-        username: '',
-        email: '',
-        password: '',
-    });
 
     const { setUserInfo } = useContext(UserContext);
     
@@ -33,13 +27,9 @@ export default function AuthContextProvider({children}) {
         return false;
     }
     
-    async function handleSignUp(){
+    async function handleSignUp(signUpCredentials) {
         console.log("Signing Up User...")
-        const res = await postApi("/auth/register", {
-            name: signUpCredentials.username,
-            email: signUpCredentials.email,
-            password: signUpCredentials.password
-        });
+        const res = await postApi("/auth/register", signUpCredentials);
         console.log(res);
         if(res.status === 200){
             toast.success("User Signed Up Successfully");
@@ -68,8 +58,6 @@ export default function AuthContextProvider({children}) {
     const ctxValue = {
         credentials: credentials,
         setCredentials: setCredentials,
-        signUpCredentials: signUpCredentials,
-        setSignUpCredentials: setSignUpCredentials,
         loginUser: handleLoginUser,
         signUpUser: handleSignUp,
         googleLogin: handleGoogleLogin,
