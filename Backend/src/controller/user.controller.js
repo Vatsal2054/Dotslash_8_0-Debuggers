@@ -1,9 +1,11 @@
-import User from "../models/user.model";
-import { ApiResponse } from "../utils/ApiResponse";
+import User from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 const createUser = async (req, res) => {
-  const [firstName, lastName, email, password, role, phone, address, gender] =
+  console.log(req.body);
+  const { firstName, lastName, email, password, role, phone, address, gender } =
     req.body;
 
   // Validate required fields
@@ -19,7 +21,7 @@ const createUser = async (req, res) => {
   ) {
     return res
       .status(400)
-      .json(new ApiResponse("Please provide all required fields", false));
+      .json(new ApiError(400, "Please provide all required fields", false));
   }
 
   try {
@@ -28,7 +30,7 @@ const createUser = async (req, res) => {
     if (existingUser) {
       return res
         .status(400)
-        .json(new ApiResponse("Email already in use", false));
+        .json(new ApiError(400, "Email already in use", false));
     }
 
     // Hash the password before saving it
@@ -48,12 +50,16 @@ const createUser = async (req, res) => {
     });
 
     // Save the user to the database
-    await newUser.save();
+    let user = await newUser.save();
+
+    delete user.password;
 
     // Respond with a success message (you can exclude the password in the response if you want)
-    res.status(201).json(new ApiResponse("User created successfully", true));
+    res
+      .status(200)
+      .json(new ApiResponse(200, user, "User created successfully"));
   } catch (error) {
-    res.status(500).json(new ApiResponse(error.message, false));
+    res.status(500).json(new ApiError(500, "server error", error.message));
   }
 };
 
@@ -70,7 +76,7 @@ const getUser = async (req, res) => {
     // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json(new ApiResponse("Invalid Password", false));
+      return res.status(401).json(new ApiError(401, "Invalid Password", false));
     }
 
     const token = jwt.sign(
@@ -89,9 +95,9 @@ const getUser = async (req, res) => {
     res.cookie("token", token, options);
 
     // Respond with a 200 status and success message
-    res.status(200).json(new ApiResponse("Success", true)); 
+    res.status(200).json(new ApiResponse("Success", true)); // Corrected the response format
   } catch (error) {
-    res.status(500).json(new ApiResponse(error.message, false));
+    res.status(500).json(new ApiError(500, "server error", error.message));
   }
 };
 
