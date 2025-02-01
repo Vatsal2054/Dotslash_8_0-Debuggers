@@ -26,7 +26,7 @@ const prescriptionSchema = new Schema(
           required: true,
         },
         frequency: {
-          type: Array,
+          type: [String],
           required: true,
           enum: ["morning", "afternoon", "evening"],
         },
