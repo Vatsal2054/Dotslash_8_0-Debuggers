@@ -7,3 +7,6 @@ const router = Router();
 router.get("/", isAuthenticated, getChat);
 router.post("/send", isAuthenticated, sendMessage);
 router.delete("/delete/:id", isAuthenticated,deleteMessage);
+
+
+export default router;

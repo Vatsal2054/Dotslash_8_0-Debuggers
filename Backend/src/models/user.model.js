@@ -51,11 +51,11 @@ const userSchema = new Schema(
         required: true,
       },
     }),
-    gender:{
-        type: String,
-        required: true,
-        enum: ["Male", "Female", "Other"],
-    }
+    gender: {
+      type: String,
+      required: true,
+      enum: ["Male", "Female", "Other"],
+    },
   },
   {
     timestamps: true,
