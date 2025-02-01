@@ -54,7 +54,7 @@ const createAppointment = async (req, res) => {
 const getAllAppointments = async (req, res) => {
   try {
     const userId = req.user._id;
-    const id = mongoose.Types.ObjectId(userId);
+    const id = new mongoose.Types.ObjectId(userId);
     const appointments = await Appointment.aggregate([
       {
         $match: {
