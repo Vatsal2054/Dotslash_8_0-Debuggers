@@ -147,10 +147,6 @@ const getDoctorsInUserCity = async (req, res) => {
           $sort: { experience: -1 } // Sort by experience in descending order
         }
       ]);
-  
-      if (!doctors.length) {
-        throw new ApiError(404, `No doctors found in your city (${userCity})`);
-      }
       const response = {
         doctors,
         totalDoctors: doctors.length,
