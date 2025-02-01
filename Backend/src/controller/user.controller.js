@@ -1,11 +1,11 @@
 import User from "../models/user.model.js";
 import Patient from "../models/patient.model.js";
+import Doctor from "../models/doctor.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 const createUser = async (req, res) => {
-  console.log(req.body);
   const { firstName, lastName, email, password, role, phone, address, gender } =
     req.body;
 
