@@ -15,13 +15,17 @@ const createAppointment = async (req, res) => {
   try {
     const userId = req.user._id;
     const { date, time, notes, type, doctorId } = req.body;
-    const user = await User.findById(doctorId);
-    if (!user) {
+
+    const doctor = await User.findById(doctorId); // Ensure correct model
+    if (!doctor) {
       return res.status(400).json(new ApiError(400, "Doctor not found", false));
     }
+
+    let roomId = null;
     if (type === "online") {
-      const roomId = generateRoomId();
+      roomId = generateRoomId();
     }
+
     const appointment = new Appointment({
       userId,
       doctorId,
@@ -29,18 +33,19 @@ const createAppointment = async (req, res) => {
       time,
       notes,
       type,
-      roomId,
+      ...(roomId && { roomId }), // Add roomId only if it's not null
     });
+
     await appointment.save();
+
     return res
       .status(200)
-      .json(
-        new ApiResponse(200, appointment, "Appointment created successfully")
-      );
+      .json(new ApiResponse(200, appointment, "Appointment created successfully"));
   } catch (err) {
     return res.status(500).json(new ApiError(500, "Server Error", err.message));
   }
 };
+
 
 const getAllAppointments = async (req, res) => {
   try {
@@ -82,7 +87,7 @@ const updateAppointment = async (req, res) => {
     const appointmentId = req.params.id;
     const { date, time, notes, type, doctorId } = req.body;
     const appointment = await Appointment.findOneAndUpdate(
-      { _id: appointmentId, userId },
+      { _id: appointmentId },
       { date, time, notes, type, doctorId },
       { new: true, runValidators: true }
     );
