@@ -43,7 +43,7 @@ const sendMessage = async (req, res) => {
 const deleteMessage = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { chatId } = req.params;
+    const chatId = req.params.id;
     const chat = await Chat.findByIdAndDelete({
       _id: chatId,
       $or: [{ senderId: userId }, { receiverId: userId }],
