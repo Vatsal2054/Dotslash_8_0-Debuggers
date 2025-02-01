@@ -4,7 +4,7 @@ import { Logo } from "../UI/Logo";
 
 export default function Header() {
     return (
-        <header className="w-[100vw]">
+        <header className="w-[100vw] ">
             <Container classes={"border-0 rounded-none px-5 py-3 flex justify-between items-center !bg-inherit"}>
                 <div className="flex flex-row items-center gap-4">
                     <Logo size={35} />

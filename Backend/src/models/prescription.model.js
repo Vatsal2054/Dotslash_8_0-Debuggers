@@ -10,31 +10,27 @@ const prescriptionSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    prescription: {
-      type: String,
-      required: true,
-    },
     date: {
       type: Date,
       required: true,
       default: Date.now,
     },
-    medication: [
+    prescription: [
       {
-        name: {
+        medicineName: {
           type: String,
           required: true,
         },
-        dosage: {
-          type: String,
+        quantity: {
+          type: Number,
           required: true,
         },
-        time: {
-          type: String,
+        frequency: {
+          type: Array,
           required: true,
           enum: ["morning", "afternoon", "evening"],
         },
-        intakeTiming: {
+        timing: {
           type: String,
           required: true,
           enum: ["before meal", "after meal", "with meal"],
@@ -42,16 +38,8 @@ const prescriptionSchema = new Schema(
         notes: {
           type: String,
         },
-        quantity: {
-          type: Number,
-          required: true,
-        },
       },
     ],
-    days:{
-        type: Number,
-        required: true,
-    },
   },
   {
     timestamps: true,
@@ -61,4 +49,3 @@ const prescriptionSchema = new Schema(
 const Prescription = mongoose.model("Prescription", prescriptionSchema);
 
 export default Prescription;
-

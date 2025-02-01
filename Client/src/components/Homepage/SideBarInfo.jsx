@@ -1,4 +1,4 @@
-import { PiChats, PiChatsDuotone, PiClipboardText, PiClipboardTextDuotone, PiGearSix, PiGearSixDuotone, PiHouse, PiHouseDuotone, PiMagnifyingGlass, PiMagnifyingGlassDuotone, PiUserCircle, PiUserCircleDuotone } from "react-icons/pi";
+import { PiChats, PiScanDuotone , PiClipboardText, PiClipboardTextDuotone, PiGearSix, PiGearSixDuotone, PiHouse, PiHouseDuotone, PiMagnifyingGlass, PiMagnifyingGlassDuotone, PiUserCircle, PiUserCircleDuotone, PiScan } from "react-icons/pi";
 
 export const PatientNavContentInfo = [
     {
@@ -18,6 +18,12 @@ export const PatientNavContentInfo = [
         path: "/find-doctor",
         icon: <PiMagnifyingGlass />,
         fillIcon: <PiMagnifyingGlassDuotone  />
+    },
+    {
+        name: "Analyze Report",
+        path: "/report",
+        icon: <PiScan  />,
+        fillIcon: <PiScanDuotone   />
     },
     {
         name: "Profile",
