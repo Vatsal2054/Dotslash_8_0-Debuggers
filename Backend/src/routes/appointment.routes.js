@@ -9,11 +9,13 @@ import {
   updateAppointment,
   declineAppointment,
   joinAppointment,
+  getAllPatientAppointments,
 } from "../controller/appointment.controller.js";
 
 const router = Router();
 
-router.get("/", isAuthenticated, getAllAppointments);
+router.get("/", isAuthenticated,isPatient, getAllAppointments);
+router.get("/appointments", isAuthenticated, isDoctor, getAllPatientAppointments);
 router.post("/", isAuthenticated, isPatient, createAppointment);
 router.put("/:id", isAuthenticated, updateAppointment);
 router.delete("/:id", isAuthenticated, isPatient, deleteAppointment);

@@ -112,6 +112,67 @@ const getAllAppointments = async (req, res) => {
       .json(new ApiError(500, "Server Error", error.message));
   }
 };
+const getAllPatientAppointments = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const id = new mongoose.Types.ObjectId(userId);
+    const appointments = await Appointment.aggregate([
+      {
+        $match: {
+          doctorId: id,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $lookup: {
+          from: "patients",
+          localField: "userId",
+          foreignField: "userId",
+          as: "user_details",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $unwind: {
+          path: "$user_details",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          doctor: { $mergeObjects: ["$user", "$patient_details"] },
+        },
+      },
+      {
+        $project: {
+          "user._id": 0, // Optionally hide duplicate _id fields
+          patient_details: 0, // Remove the now redundant doctor_details field
+        },
+      },
+    ]);
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, appointments, "Appointments fetched successfully")
+      );
+  } catch (error) {
+    return res
+      .status(500)
+      .json(new ApiError(500, "Server Error", error.message));
+  }
+};
 
 const updateAppointment = async (req, res) => {
   try {
@@ -266,4 +327,5 @@ export {
   approveAppointment,
   declineAppointment,
   joinAppointment,
+  getAllPatientAppointments,
 };
