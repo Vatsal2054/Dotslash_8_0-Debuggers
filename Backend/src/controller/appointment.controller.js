@@ -50,16 +50,73 @@ const createAppointment = async (req, res) => {
 const getAllAppointments = async (req, res) => {
   try {
     const userId = req.user._id;
-    let user= await User.find({ userId });
-    const appointments = await Appointment.find({ userId });
-    user= {...user, appointments};
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(200, user, "Appointments fetched successfully")
-      );
+
+    // Find all appointments for the user
+    const appointments = await Appointment.find({ userId })
+      .sort({ date: -1, time: -1 }); // Sort by newest first
+
+    // Get combined details for each appointment
+    const appointmentDetails = await Promise.all(appointments.map(async (appointment) => {
+      // Get patient details
+      const patient = await User.findById(appointment.userId)
+        .select('firstName lastName email phone avatar gender address');
+
+      // Get doctor details
+      const doctor = await User.findById(appointment.doctorId)
+        .select('firstName lastName email phone avatar');
+      
+      // Get doctor's professional details
+      const doctorProfile = await Doctor.findOne({ userId: appointment.doctorId })
+        .select('degree specialization experience workingPlace isAvailable');
+
+      return {
+        appointmentId: appointment._id,
+        type: appointment.type,
+        date: appointment.date,
+        time: appointment.time,
+        status: appointment.status,
+        notes: appointment.notes,
+        roomId: appointment.roomId,
+        patient: {
+          id: patient._id,
+          firstName: patient.firstName,
+          lastName: patient.lastName,
+          email: patient.email,
+          phone: patient.phone,
+          avatar: patient.avatar,
+          gender: patient.gender,
+          address: patient.address
+        },
+        doctor: {
+          id: doctor._id,
+          firstName: doctor.firstName,
+          lastName: doctor.lastName,
+          email: doctor.email,
+          phone: doctor.phone,
+          avatar: doctor.avatar,
+          degree: doctorProfile?.degree,
+          specialization: doctorProfile?.specialization,
+          experience: doctorProfile?.experience,
+          workingPlace: doctorProfile?.workingPlace,
+          isAvailable: doctorProfile?.isAvailable
+        },
+        createdAt: appointment.createdAt,
+        updatedAt: appointment.updatedAt
+      };
+    }));
+
+    return res.status(200).json(
+      new ApiResponse(
+        200, 
+        appointmentDetails,
+        "Appointments fetched successfully"
+      )
+    );
+
   } catch (err) {
-    return res.status(500).json(new ApiError(500, "Server Error", err.message));
+    return res.status(500).json(
+      new ApiError(500, "Error fetching appointments", err.message)
+    );
   }
 };
 
