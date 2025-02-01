@@ -69,13 +69,8 @@ export default function LoginContent() {
     return (
         <main>
             <div className="w-[100vw] h-[100vh] p-8 flex flex-row">
-                <section className="h-[100%] flex-[6] sm:hidden md:block rounded-xl overflow-hidden bg-loginBackground bg-cover bg-right bg-no-repeat flex items-center justify-start">
-                    <div className="relative z-[-2] p-8 w-[80%] h-[100%] rounded-xl bg-background-light dark:bg-background-dark">
-                        {/* <h1 className="text-2xl">Welcome back!</h1> */}
-                    </div>
-                </section>
                 <section className="flex-[4] flex justify-center items-center">
-                    <div className="w-[70%] flex flex-col">
+                    <div className="w-[30%] flex flex-col">
                         <Logo size={50} className="pb-3" />
                         <h1 className="text-[2.6rem] mb-4 font-medium stretched flex justify-between items-center">
                             <span>

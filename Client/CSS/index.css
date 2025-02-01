@@ -225,3 +225,23 @@ input:-webkit-autofill:focus {
         --size: 48px;
     }
 }
+
+/* Remove placeholder text in Chrome, Edge, Safari */
+input[type="date"]::-webkit-datetime-edit {
+    color: transparent;
+}
+
+/* Optional: Show text when user focuses */
+input[type="date"]:focus::-webkit-datetime-edit {
+    color: black;
+}
+
+/* Remove placeholder text in Firefox */
+input[type="date"]::-moz-placeholder {
+    opacity: 0;
+}
+
+/* Remove placeholder text in Edge */
+input[type="date"]::-ms-input-placeholder {
+    opacity: 0;
+}
