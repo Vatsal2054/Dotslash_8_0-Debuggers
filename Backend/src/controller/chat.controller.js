@@ -1,4 +1,3 @@
-import User from "../models/user.model.js";
 import Chat from "../models/chat.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -6,14 +5,10 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const getChat = async (req, res) => {
   try {
     const userId = req.user._id;
-    const chat = await Chat.find(
-      {
-        $or: [{ senderId: userId }, { receiverId: userId }],
-      },
-      {
-        $sort: { createdAt: 1 },
-      }
-    );
+    const chat = await Chat.find({
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    }).sort({ createdAt: 1 }); 
+
     return res
       .status(200)
       .json(new ApiResponse(200, chat, "Chat fetched successfully"));
