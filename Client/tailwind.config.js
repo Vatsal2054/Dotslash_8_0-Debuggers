@@ -29,7 +29,8 @@ export default {
           greyTranslucent: '#f7f7f7aa',
           greyDark: '#ddd',
           red: '#e9612c',
-          redTranslucent: '#fcdee1'
+          redTranslucent: '#fcdee1',
+          redTranslucent2: '#fcdee177',
         },
         font: {
           white: '#fbfcff',

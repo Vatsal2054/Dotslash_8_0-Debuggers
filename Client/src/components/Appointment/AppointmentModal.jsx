@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import Input from "../UI/Inputs";
 import Button from "../UI/Buttons";
@@ -7,31 +7,50 @@ const AppointmentModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     date: "",
     time: "",
-    type: "in-person",
+    type: "",
     notes: "",
-    doctorId: "",
   });
 
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({
+    field: "",
+    message: "",
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await onSubmit(formData);
-      onClose();
+  useEffect(() => {
+    if (!isOpen) {
       setFormData({
         date: "",
         time: "",
-        type: "in-person",
+        type: "",
         notes: "",
-        doctorId: "",
       });
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setLoading(false);
+      setError({
+        field: "",
+        message: "",
+      });
     }
+  }, [isOpen]);
+
+  const [loading, setLoading] = useState(false);
+
+  function checkEmptyFields() {
+    for (let key in formData) {
+        if (!formData[key] || formData[key].trim() === "") {
+            setError({
+                field: key,
+                message: "This field is required!"
+            });
+            return true;
+        }
+    }
+    return false;
+}
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if(checkEmptyFields()) return;
+    setLoading(true);
+    await onSubmit(formData);
   };
 
   if (!isOpen) return null;
@@ -48,7 +67,7 @@ const AppointmentModal = ({ isOpen, onClose, onSubmit }) => {
 
         <h2 className="text-xl font-semibold mb-6">Book Appointment</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-0">
           <Input
             Type="PRIMARY"
             type="date"
@@ -57,6 +76,7 @@ const AppointmentModal = ({ isOpen, onClose, onSubmit }) => {
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, date: e.target.value }))
             }
+            errorText={error.field === "date" && error.message}
           />
 
           <Input
@@ -67,6 +87,7 @@ const AppointmentModal = ({ isOpen, onClose, onSubmit }) => {
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, time: e.target.value }))
             }
+            errorText={error.field === "time" && error.message}
           />
 
           <Input
@@ -78,21 +99,7 @@ const AppointmentModal = ({ isOpen, onClose, onSubmit }) => {
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, type: e.target.value }))
             }
-          />
-
-          <Input
-            Type="PRIMARY"
-            type="dropdown"
-            labelText="Select Doctor"
-            options={
-              formData.type === "online"
-                ? ["Dr. Smith (Online)", "Dr. Johnson (Online)"]
-                : ["Dr. Brown (Clinic)", "Dr. Davis (Clinic)"]
-            }
-            value={formData.doctorId}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, doctorId: e.target.value }))
-            }
+            errorText={error.field === "type" && error.message}
           />
 
           <Input
@@ -103,6 +110,7 @@ const AppointmentModal = ({ isOpen, onClose, onSubmit }) => {
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, notes: e.target.value }))
             }
+            errorText={error.field === "notes" && error.message}
           />
 
           <div className="flex gap-4 pt-4">

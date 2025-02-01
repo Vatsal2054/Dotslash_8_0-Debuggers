@@ -6,6 +6,7 @@ import Container from "../components/UI/Container";
 import Button from "../components/UI/Buttons";
 import { AuthContext } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 export default function PatientSignUp() {
     const [doctorInfo, setDoctorInfo] = useState(DoctorStructure);
@@ -15,6 +16,8 @@ export default function PatientSignUp() {
     })
 
     const { signUpUser } = useContext(AuthContext);
+
+    const navigate = useNavigate();
 
     function verifyEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,17 +49,16 @@ export default function PatientSignUp() {
         }
         const res = await signUpUser({
             ...doctorInfo,
-            role: "patient",
+            role: "doctor",
             address: {
                 street: doctorInfo.street,
                 city: doctorInfo.city,
                 state: doctorInfo.state,
                 zip: doctorInfo.zip,
             },
-            disabled: doctorInfo.disabled === "Yes" ? true : false
         });
-        if(!res){
-            toast.error("An error occurred while signing up the user");
+        if(res){
+            navigate("/login");
         }
     }
 

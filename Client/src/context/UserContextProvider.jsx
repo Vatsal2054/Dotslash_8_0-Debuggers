@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { UserContext } from "./UserContext";
 import getApi from "../helpers/API/getApi";
+import postApi from "../helpers/API/postApi";
+import toast from "react-hot-toast";
 
 export default function UserContextProvider({ children }) {
     const [userInfo, setUserInfo] = useState({});
@@ -42,13 +44,61 @@ export default function UserContextProvider({ children }) {
         return false;
     }
 
+    async function handleGetPatientAppointments(){
+        const res = await getApi("/appointment/");
+        console.log(res);
+        if(res.status === 200){
+            console.log("Appointments fetched successfully");
+            return res.data.data;
+        }
+        return false;
+    }
+
+    async function handleGetDoctorAppointments(){
+        const res = await getApi("/appointment/appointments");
+        console.log(res);
+        if(res.status === 200){
+            console.log("Appointments fetched successfully");
+            return res.data.data;
+        }
+        return false;
+    }
+
+    async function handleGetAppointments(){
+        let res;
+        if(userInfo.role === "doctor"){
+            res = await handleGetDoctorAppointments();
+        } else {
+            res = await handleGetPatientAppointments();
+        }
+        console.log(res);
+        if(res){
+            console.log("Appointments fetched successfully");
+            return res;
+        }
+        return false;
+    }
+
+    async function handleBookAppointment(data){
+        const res = await postApi("/appointment/", data);
+        console.log(res);
+        if(res.status === 200){
+            toast.success("Appointment booked successfully");
+            console.log("Appointment booked successfully");
+            return true;
+        }
+        return false
+    }
+
     const ctxValue = {
         userInfo: userInfo,
         setUserInfo: setUserData,
         role: userInfo.role,
         pingUser: handlePingUser,
         getDoctors: handleGetDoctors,
-        getDoctorsByCity: handleGetDoctorsByCity
+        getDoctorsByCity: handleGetDoctorsByCity,
+        getAppointments: handleGetAppointments,
+        bookAppointment: handleBookAppointment
     }
 
     return (

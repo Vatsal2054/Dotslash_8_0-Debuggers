@@ -10,7 +10,7 @@ export default function HomeLayout({ role, children }) {
             <main className="h-[100%] flex flex-row">
                 <SideMenu role={role} />
                 <div className="flex-1 pr-4 pb-4">
-                    <Container classes="h-[100%]">
+                    <Container classes="h-[100%] overflow-hidden">
                         <Outlet />
                     </Container>
                 </div>

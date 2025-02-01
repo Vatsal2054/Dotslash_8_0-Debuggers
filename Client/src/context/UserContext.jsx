@@ -1,3 +1,4 @@
+import { get } from "mongoose";
 import { createContext } from "react";
 
 export const UserContext = createContext({
@@ -6,5 +7,7 @@ export const UserContext = createContext({
     setUserInfo: () => {},
     pingUser: () => {},
     getDoctors: () => {},
-    getDoctorsByCity: () => {}
+    getDoctorsByCity: () => {},
+    getAppointments: () => {},
+    bookAppointment: () => {},
 })
