@@ -1,7 +1,5 @@
 import { useContext, useEffect } from "react";
 import { UserContext } from "../context/UserContext";
-import PatientHome from "../components/Homepage/PatientHome";
-import DoctorHome from "../components/Homepage/DoctorHome";
 import HomeLayout from "../components/Homepage/HomeLayout";
 import { useNavigate } from "react-router";
 

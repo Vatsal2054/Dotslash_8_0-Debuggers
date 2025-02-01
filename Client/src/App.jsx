@@ -8,6 +8,7 @@ import Appointment from "./pages/Appointment";
 import FindDoctors from "./pages/FindDoctors";
 import Chat from "./pages/ChatBot";
 import Profile from "./pages/Profile";
+import MeetingRoom from "./pages/MeetingRoom";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             {/* <Route path="/" /> */}
           </Route>
+          <Route path="/meeting/:id" element={<MeetingRoom />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signup/patient" element={<PatientSignUp />} />

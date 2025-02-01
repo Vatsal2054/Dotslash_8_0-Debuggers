@@ -2,7 +2,9 @@ import { useContext, useEffect, useState } from "react";
 import { Calendar, Clock, MapPin, Video, User } from "lucide-react";
 import Button from "../components/UI/Buttons";
 import { UserContext } from "../context/UserContext";
-import { formatDate } from "../helpers/Data/formatDate";
+import { formatDate, getAge } from "../helpers/Data/formatDate";
+import { PiMapPin } from "react-icons/pi";
+import { useNavigate } from "react-router";
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -22,7 +24,9 @@ const getStatusColor = (status) => {
 const AppointmentsPage = () => {
     const [appointments, setAppointments] = useState([]);
 
-    const { role, getAppointments } = useContext(UserContext);
+    const { role, getAppointments, acceptRequest, declineRequest, joinAppointment } = useContext(UserContext);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         handleGetAppointments();
@@ -44,6 +48,27 @@ const AppointmentsPage = () => {
         alert(`Cancel appointment ${appointmentId}`);
     };
 
+    async function handleAcceptRequest(appointmentId) {
+        const res = await acceptRequest(appointmentId);
+        if (res) {
+            handleGetAppointments();
+        }
+    }
+
+    async function handleDeclineRequest(appointmentId) {
+        const res = await declineRequest(appointmentId);
+        if (res) {
+            handleGetAppointments();
+        }
+    }
+
+    // async function handleJoinRoom(appointmentId) {
+    //     const res = await joinAppointment(appointmentId);
+    //     if (res != "") {
+    //         navigate(`/meeting/${res}`);
+    //     }
+    // }
+
     return (
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-6">
@@ -59,7 +84,7 @@ const AppointmentsPage = () => {
                             <div className="flex justify-between items-center mb-2">
                                 <h2 className="text-lg font-semibold">
                                     {role === "doctor"
-                                        ? appointment.user_details.firstName + " " + appointment.user_details.lastName
+                                        ? appointment.user.firstName + " " + appointment.user.lastName
                                         : appointment.doctor.firstName + " " + appointment.doctor.lastName}
                                 </h2>
                                 <span
@@ -76,11 +101,13 @@ const AppointmentsPage = () => {
                                 <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
                                     <div className="flex items-center gap-2 mb-1">
                                         <User className="w-4 h-4" />
-                                        <span>{appointment.user_details.age} years old</span>
+                                        <span>{getAge(appointment.user.dob)} years old</span>
                                     </div>
                                     <div className="flex items-start gap-2">
-                                        <MapPin className="w-4 h-4 mt-1" />
-                                        <span>{appointment.user_details.address}</span>
+                                        <PiMapPin className="!w-4 !h-4 mt-1" />
+                                        <span>
+                                        {appointment.user.address.street}, {appointment.user.address.city}, {appointment.user.address.state }, {appointment.user.address.zip}
+                                        </span>
                                     </div>
                                 </div>
                             ) : (
@@ -113,7 +140,7 @@ const AppointmentsPage = () => {
                             </div>
                         </div>
 
-                        {appointment.status === "pending" && (
+                        {(appointment.status === "pending" && role === "patient") && (
                             <div className="p-4 bg-gray-50 dark:bg-gray-700 flex gap-2">
                                 <Button
                                     type="PRIMARY"
@@ -128,6 +155,33 @@ const AppointmentsPage = () => {
                                     onClick={() => handleCancel(appointment.id)}
                                 >
                                     Cancel
+                                </Button>
+                            </div>
+                        )}
+
+                        {(appointment.status === "approved" && role === "patient") && (
+                            <div className="p-4 bg-gray-50 dark:bg-gray-700 flex gap-2">
+                                <Button type="PRIMARY" extraClasses="flex-1" onClick={() => handleCancel(appointment.id)}>
+                                    Join Room
+                                </Button>
+                            </div>
+                        )}
+
+                        {(appointment.status === "pending" && role === "doctor") && (
+                            <div className="p-4 bg-gray-50 dark:bg-gray-700 flex gap-2">
+                                <Button
+                                    type="PRIMARY"
+                                    extraClasses="flex-1"
+                                    onClick={() => handleAcceptRequest(appointment._id)}
+                                >
+                                    Accept
+                                </Button>
+                                <Button
+                                    type="DANGER"
+                                    extraClasses="flex-1"
+                                    onClick={() => handleDeclineRequest(appointment._id)}
+                                >
+                                    Decline
                                 </Button>
                             </div>
                         )}
