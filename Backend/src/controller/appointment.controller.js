@@ -47,11 +47,37 @@ const createAppointment = async (req, res) => {
 };
 
 
+// Import required models and utilities
+import Appointment from '../models/appointment.model.js';
+import User from '../models/user.model.js';
+import Doctor from '../models/doctor.model.js';
+
+// API Response utility class
+class ApiResponse {
+  constructor(statusCode, data, message = "Success") {
+    this.statusCode = statusCode;
+    this.data = data;
+    this.message = message;
+    this.success = statusCode < 400;
+  }
+}
+
+// API Error utility class
+class ApiError extends Error {
+  constructor(statusCode, message, errors = []) {
+    super(message);
+    this.statusCode = statusCode;
+    this.errors = errors;
+    this.success = false;
+  }
+}
+
 const getAllAppointments = async (req, res) => {
   try {
+    // Get user ID from authenticated request
     const userId = req.user._id;
-
-    // Find all appointments for this user and populate doctor details
+    
+    // Find all appointments for this user with populated doctor details
     const appointments = await Appointment.find({ userId })
       .populate({
         path: 'doctorId',
@@ -63,24 +89,23 @@ const getAllAppointments = async (req, res) => {
         model: 'User',
         // Populate doctor's professional details from Doctor model
         populate: {
-          path: 'userId',
+          path: 'userId', // This should match the field in Doctor model that references User
           model: 'Doctor',
           select: 'degree specialization experience workingPlace isAvailable'
         }
       })
       .lean();
 
+    // Check if appointments exist
     if (!appointments || appointments.length === 0) {
-      return res
-        .status(404)
-        .json(new ApiError(404, "No appointments found", false));
+      throw new ApiError(404, "No appointments found");
     }
 
-    // Transform the data to combine user and doctor details
+    // Transform and format the appointment data
     const formattedAppointments = appointments.map(appointment => {
       const doctorDetails = appointment.doctorId;
       const professionalDetails = doctorDetails?.userId || {};
-      
+
       return {
         appointmentId: appointment._id,
         type: appointment.type,
@@ -109,6 +134,7 @@ const getAllAppointments = async (req, res) => {
       };
     });
 
+    // Send successful response
     return res
       .status(200)
       .json(
@@ -118,10 +144,29 @@ const getAllAppointments = async (req, res) => {
           "Appointments retrieved successfully"
         )
       );
-  } catch (err) {
-    return res.status(500).json(new ApiError(500, "Server Error", err.message));
+
+  } catch (error) {
+    // If error is already an ApiError, send it directly
+    if (error instanceof ApiError) {
+      return res
+        .status(error.statusCode)
+        .json(error);
+    }
+
+    // Otherwise, send a generic server error
+    return res
+      .status(500)
+      .json(
+        new ApiError(
+          500,
+          "Error while fetching appointments",
+          error.message
+        )
+      );
   }
 };
+
+export { getAllAppointments };
 
 const updateAppointment = async (req, res) => {
   try {
