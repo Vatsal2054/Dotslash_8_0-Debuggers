@@ -116,6 +116,7 @@ const getAllPatientAppointments = async (req, res) => {
   try {
     const userId = req.user._id;
     const id = new mongoose.Types.ObjectId(userId);
+    
     const appointments = await Appointment.aggregate([
       {
         $match: {
@@ -125,7 +126,7 @@ const getAllPatientAppointments = async (req, res) => {
       {
         $lookup: {
           from: "users",
-          localField: "user",
+          localField: "userId", // Changed from "user" to "userId" to match the appointment schema
           foreignField: "_id",
           as: "user",
         },
@@ -135,7 +136,7 @@ const getAllPatientAppointments = async (req, res) => {
           from: "patients",
           localField: "userId",
           foreignField: "userId",
-          as: "user_details",
+          as: "patient_details",  // Changed from "user_details" for clarity
         },
       },
       {
@@ -146,34 +147,58 @@ const getAllPatientAppointments = async (req, res) => {
       },
       {
         $unwind: {
-          path: "$user_details",
+          path: "$patient_details",
           preserveNullAndEmptyArrays: true,
         },
       },
       {
         $addFields: {
-          doctor: { $mergeObjects: ["$user", "$user_details"] },
+          // Merge user and patient details, excluding duplicate fields
+          user: {
+            $mergeObjects: [
+              {
+                $arrayToObject: {
+                  $filter: {
+                    input: { $objectToArray: "$user" },
+                    cond: { $ne: ["$$this.k", "_id"] }
+                  }
+                }
+              },
+              "$patient_details"
+            ]
+          }
         },
       },
       {
         $project: {
-          "user._id": 0, // Optionally hide duplicate _id fields
-          user_details: 0, // Remove the now redundant doctor_details field
+          patient_details: 0,
+          "user._id": 0,
+          doctorId: 1,
+          appointmentDate: 1,
+          status: 1,
+          user: 1,
+          // Add other fields you want to include
         },
       },
     ]);
+
+    if (!appointments) {
+      return res
+        .status(404)
+        .json(new ApiError(404, "No appointments found"));
+    }
+
     return res
       .status(200)
-      .json(
-        new ApiResponse(200, appointments, "Appointments fetched successfully")
-      );
+      .json(new ApiResponse(200, appointments, "Appointments fetched successfully"));
+      
   } catch (error) {
+    console.error("Error in getAllPatientAppointments:", error);
     return res
       .status(500)
-      .json(new ApiError(500, "Server Error", error.message));
+      .json(new ApiError(500, "Error fetching appointments", error.message));
   }
 };
-
 const updateAppointment = async (req, res) => {
   try {
     const userId = req.user._id;
