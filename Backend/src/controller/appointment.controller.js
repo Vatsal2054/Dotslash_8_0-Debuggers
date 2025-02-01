@@ -2,8 +2,6 @@ import Appointment from "../models/appointment.model.js";
 import User from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import Appointment from '../models/appointment.model.js';
-import User from '../models/user.model.js';
 import Doctor from '../models/doctor.model.js';
 function generateRoomId(length = 6) {
   const characters =
@@ -49,7 +47,26 @@ const createAppointment = async (req, res) => {
   }
 };
 
+const getAppointmentById = async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
 
+    // Find appointment and populate user and doctor details
+    const appointment = await Appointment.findById(appointmentId);
+
+    if (!appointment) {
+      return res
+        .status(404)
+        .json(new ApiError(404, "Appointment not found", false));
+    }
+    return res
+      .status(200)
+      .json(new ApiResponse(200, appointment, "Appointment fetched successfully"));
+
+  } catch (err) {
+    return res.status(500).json(new ApiError(500, "Server Error", err.message));
+  }
+};
 // Import required models and utilities
 const getAllAppointments = async (req, res) => {
   try {
@@ -261,5 +278,6 @@ export {
   deleteAppointment,
   approveAppointment,
   declineAppointment,
+  getAppointmentById,
   joinAppointment
 };
