@@ -9,6 +9,7 @@ import FindDoctors from "./pages/FindDoctors";
 import Chat from "./pages/ChatBot";
 import Profile from "./pages/Profile";
 import MeetingRoom from "./pages/MeetingRoom";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
