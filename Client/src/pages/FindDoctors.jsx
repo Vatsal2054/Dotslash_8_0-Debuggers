@@ -29,7 +29,7 @@ export default function FindDoctors() {
 
     return (
         <div className="p-6">
-            <div className="flex flex-row justify-between mb-4">
+            <div className="flex flex-row justify-between mb-6">
                 <h1 className="text-2xl font-bold">Doctors</h1>
                 <div className="flex flex-row">
                     <button

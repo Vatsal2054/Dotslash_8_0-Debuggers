@@ -114,7 +114,7 @@ export default function UserContextProvider({ children }) {
     }
 
     async function handleJoinAppointment(appointmentId){
-        const res = await putApi(`/appointment/join/${appointmentId}`);
+        const res = await getApi(`/appointment/join/${appointmentId}`);
         console.log(res);
         if(res.status === 200){
             // toast.success("Appointment joined successfully");
