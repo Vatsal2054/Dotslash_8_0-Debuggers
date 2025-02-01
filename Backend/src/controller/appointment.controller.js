@@ -173,10 +173,6 @@ const getAllPatientAppointments = async (req, res) => {
         $project: {
           patient_details: 0,
           "user._id": 0,
-          doctorId: 1,
-          appointmentDate: 1,
-          status: 1,
-          user: 1,
           // Add other fields you want to include
         },
       },
