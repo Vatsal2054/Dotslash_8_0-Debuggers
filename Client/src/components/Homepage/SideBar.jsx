@@ -3,6 +3,7 @@ import { useState } from "react";
 import { PiList } from "react-icons/pi";
 import { motion } from "motion/react";
 import { PatientNavContentInfo, DoctorNavContentInfo } from "./SideBarInfo";
+import { useNavigate } from "react-router";
 
 export default function SideMenu({ role }) {
     const location = window.location.pathname;
@@ -11,16 +12,18 @@ export default function SideMenu({ role }) {
     const [selected, setSelected] = useState(location);
     const [expanded, isExpanded] = useState(true);
 
+    const navigate = useNavigate();
+
     let NavContentInfo;
 
-    if(role === "patient"){
+    if (role === "patient") {
         NavContentInfo = PatientNavContentInfo;
     } else {
         NavContentInfo = DoctorNavContentInfo;
     }
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ x: "-100%" }}
             animate={{ x: "0%" }}
             transition={{ duration: 0.2, type: "tween" }}
@@ -31,7 +34,12 @@ export default function SideMenu({ role }) {
             <div className="flex flex-col space-y-2">
                 {NavContentInfo.map((item, index) => {
                     return (
-                        <Button key={index} type={"NAV"} extraClasses={`flex flex-row text-left ${selected === item.path && "!text-primary font-[600] bg-primaryTranslucent"}`} onClick={() => setSelected(item.path)}>
+                        <Button key={index} type={"NAV"} extraClasses={`flex flex-row text-left ${selected === item.path && "!text-primary font-[600] bg-primaryTranslucent"}`}
+                            onClick={() => {
+                                setSelected(item.path);
+                                navigate(item.path);
+                            }}
+                        >
                             {
                                 selected === item.path ?
                                     <div className="nav-icon mr-4 mb-[-7px] inline-block text-primary">

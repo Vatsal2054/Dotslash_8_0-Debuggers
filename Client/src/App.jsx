@@ -5,6 +5,7 @@ import PatientSignUp from "./pages/PatientSignUp";
 import DoctorSignUp from "./pages/DoctorSignUp";
 import SignUp from "./pages/Signup";
 import Appointment from "./pages/Appointment";
+import FindDoctors from "./pages/FindDoctors";
 
 function App() {
   return (
@@ -12,7 +13,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />}>
-          <Route path="/appointments" element={<Appointment role="doctor" />} />
+          <Route path="/appointments" element={<Appointment />} />
+          <Route path="/find-doctor" element={<FindDoctors />} />
             {/* <Route path="/" /> */}
           </Route>
           <Route path="/login" element={<Login />} />
