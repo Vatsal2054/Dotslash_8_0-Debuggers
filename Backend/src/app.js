@@ -31,10 +31,10 @@ app.use(
 );
 
 // Routes
-import userRouter from "user.routes.js";
+import userRouter from "./routes/user.routes.js";
+import chatRouter from "./routes/chat.routes.js";
 
-app.use("/auth/", userRouter);
-app.use("/chat/", chatRouter);
-
+app.use("/auth", userRouter);
+app.use("/chat", chatRouter);
 
 export default app;

@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const patientSchema = new Schema(
   {
     dob: {
-      type: Number,
+      type: Date,
       required: true,
     },
     bloodGroup: {
