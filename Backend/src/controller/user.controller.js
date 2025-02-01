@@ -70,7 +70,7 @@ const getUser = async (req, res) => {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json(new ApiResponse("User not found", false));
+      return res.status(404).json(new ApiError(401,"User not found", false));
     }
 
     // Compare the provided password with the stored hashed password
@@ -101,10 +101,29 @@ const getUser = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
+const logout = async (req, res) => {
+  try {
+    
 
-  res.clearCookie("token");
-  res.status(200).json(new ApiResponse("Logged out successfully", true)); 
+    // Clear the cookie with matching options as login
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    }
+    res.clearCookie("token", options)
+
+    res.status(200).json(
+      new ApiResponse(200, null,"Logged out successfully")
+    )
+  } catch (error) {
+    res.status(500).json(
+      new ApiError(500, "Error during logout", error.message)
+    )
+  }
 }
+
+
+
 
 export { createUser, getUser, logout };
