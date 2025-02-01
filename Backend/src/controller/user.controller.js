@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Patient from "../models/patient.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import bcrypt from "bcryptjs";
@@ -52,9 +53,61 @@ const createUser = async (req, res) => {
     // Save the user to the database
     let user = await newUser.save();
 
+    // Handling patient-specific data if the role is 'patient'
+    if (user.role === "patient") {
+      try{
+      const { dob, bloodGroup, weight, height, allergies, disabled } = req.body;
+
+      if (!dob || !bloodGroup || !weight || !height || !allergies || !disabled) {
+        return res.status(400).json(new ApiError(400, "Please provide all required fields", false));
+      }
+
+      const newPatient = new Patient({
+        dob,
+        bloodGroup,
+        weight,
+        height,
+        allergies,
+        disabled,
+        user: user._id,
+      });
+
+      let patient = await newPatient.save();
+
+      // Attach patient info to the user object
+      user = { ...user.toObject(), patient }; // Ensure patient data is associated correctly
+    }catch(error){
+      return res.status(500).json(new ApiError(500, "server error", error.message));
+    }
+    }
+
+    if(user.role === "doctor") {
+      try{
+      const {degree,specialization,experience,workingPlace,isAvailable}=req.body;
+
+      if(!degree || !specialization || !experience || !workingPlace || !isAvailable){
+        return res.status(400).json(new ApiError(400,"Please provide all required fields",false));
+      }
+
+      const newDoctor = new Doctor({
+        degree,
+        specialization,
+        experience,
+        workingPlace,
+        isAvailable,
+        user:user._id
+      });
+      let doctor = await newDoctor.save();
+
+      user = {...user.toObject(),doctor};
+    }catch(error){
+      return res.status(500).json(new ApiError(500,"server error",error.message));
+    }}
+
+    // Remove password before responding
     delete user.password;
 
-    // Respond with a success message (you can exclude the password in the response if you want)
+    // Respond with a success message
     res
       .status(200)
       .json(new ApiResponse(200, user, "User created successfully"));
