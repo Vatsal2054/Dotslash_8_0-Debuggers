@@ -69,7 +69,7 @@ const createUser = async (req, res) => {
         height,
         allergies,
         disabled,
-        user: user._id,
+        userId: user._id,
       });
 
       let patient = await newPatient.save();
@@ -97,7 +97,7 @@ const createUser = async (req, res) => {
         experience,
         workingPlace,
         isAvailable,
-        user:user._id
+        userId:user._id
       });
       let doctor = await newDoctor.save();
 

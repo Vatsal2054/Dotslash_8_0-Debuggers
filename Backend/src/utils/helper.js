@@ -1,4 +1,4 @@
-import { ApiError } from "./ApiError";
+import { ApiError } from "./ApiError.js";
 const isDoctor = (req, res, next) => {
   if (req.user.role === "doctor") {
     next();
