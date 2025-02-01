@@ -10,6 +10,7 @@ import Chat from "./pages/ChatBot";
 import Profile from "./pages/Profile";
 import MeetingRoom from "./pages/MeetingRoom";
 import Dashboard from "./pages/Dashboard";
+import Report from "./pages/Report";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/appointments" element={<Appointment />} />
             <Route path="/find-doctor" element={<FindDoctors />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/report" element={<Report />} />
             <Route path="/profile" element={<Profile />} />
             {/* <Route path="/" /> */}
           </Route>

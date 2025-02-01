@@ -27,7 +27,7 @@ export default function SideMenu({ role }) {
             initial={{ x: "-100%" }}
             animate={{ x: "0%" }}
             transition={{ duration: 0.2, type: "tween" }}
-            className={`h-[100%] px-4 transition-[width] ${expanded ? "w-[15rem]" : "w-[5.1rem]"}`}>
+            className={`h-[100%]  px-4 transition-[width] ${expanded ? "w-[15rem]" : "w-[5.1rem]"}`}>
             <button className="inline-block rounded-xl mb-2 hover:bg-primaryTranslucent transition p-3 " onClick={() => isExpanded(prevValue => !prevValue)}>
                 <PiList className="text-[1.6rem]" />
             </button>
