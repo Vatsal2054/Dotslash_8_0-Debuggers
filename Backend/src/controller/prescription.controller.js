@@ -1,205 +1,219 @@
 import Prescription from "../models/prescription.model.js";
 import User from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import {ApiResponse} from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 const newPrescription = async (req, res) => {
-    try {
-        const { user, doctor, prescription, medication, days } = req.body;
+  try {
+    const { user, doctor, prescription } = req.body;
 
-        // Validate required fields
-        if (!user || !doctor || !prescription || !medication || !days) {
-            return res.status(400).json({ message: "Missing required fields" });
-        }
-
-        // Validate medication array structure
-        if (!Array.isArray(medication) || medication.length === 0) {
-            return res.status(400).json({ message: "Medication must be a non-empty array" });
-        }
-
-        // Validate each medication item
-        for (const med of medication) {
-            if (!med.name || !med.dosage || !med.time || !med.intakeTiming || !med.quantity) {
-                return res.status(400).json({ message: "Invalid medication details" });
-            }
-        }
-
-        // Create new prescription
-        const newPrescription = new Prescription({
-            user,
-            doctor,
-            prescription,
-            medication,
-            days,
-            date: new Date()
-        });
-
-        await newPrescription.save();
-
-        // Populate user and doctor details
-        const populatedPrescription = await Prescription.findById(newPrescription._id)
-            .populate('user', 'name email')
-            .populate('doctor', 'name email');
-
-        return res.status(201).json(populatedPrescription);
-    } catch (error) {
-        console.error("Error creating prescription:", error);
-        return res.status(500).json({ message: "Server error", error: error.message });
+    // Validate required fields
+    if (
+      !user ||
+      !doctor ||
+      !Array.isArray(prescription) ||
+      prescription.length === 0
+    ) {
+      return res
+        .status(400)
+        .json(new ApiError(400, "Missing required fields", false));
     }
+
+    // Validate each prescription item
+    for (const med of prescription) {
+      if (
+        !med.medicineName ||
+        !med.quantity ||
+        !Array.isArray(med.frequency) ||
+        med.frequency.length === 0 ||
+        !med.timing
+      ) {
+        return res
+          .status(400)
+          .json(
+            new ApiError(400, "Missing required fields in prescription", false)
+          );
+      }
+
+      // Validate frequency values
+      const validFrequencies = ["morning", "afternoon", "evening"];
+      if (!med.frequency.every((freq) => validFrequencies.includes(freq))) {
+        return res
+          .status(400)
+          .json(
+            new ApiError(
+              400,
+              "Invalid frequency value. Must be morning, afternoon, or evening",
+              false
+            )
+          );
+      }
+
+      // Validate timing value
+      const validTimings = ["before meal", "after meal", "with meal"];
+      if (!validTimings.includes(med.timing)) {
+        return res
+          .status(400)
+          .json(
+            new ApiError(
+              400,
+              "Invalid timing value. Must be before meal, after meal, or with meal",
+              false
+            )
+          );
+      }
+    }
+
+    const newPrescription = await Prescription.create({
+      user,
+      doctor,
+      prescription,
+      date: new Date(),
+    });
+
+    // Populate user and doctor details
+    const populatedPrescription = await Prescription.findById(
+      newPrescription._id
+    )
+      .populate("user", "firstName lastName email")
+      .populate("doctor", "firstName lastName specialization email");
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          populatedPrescription,
+          "Prescription created successfully"
+        )
+      );
+  } catch (error) {
+    console.error("Error creating prescription:", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "server error", error.message));
+  }
+};
+
+const listPrescription = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const prescriptions = await Prescription.find({
+      $or: [{ user: userId }, { doctor: userId }],
+    })
+      .populate("user", "firstName lastName email")
+      .populate("doctor", "firstName lastName specialization email");
+
+    if (!prescriptions || prescriptions.length === 0) {
+      return res
+        .status(200)
+        .json(new ApiResponse(200, [], "No prescriptions found"));
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          prescriptions,
+          "Prescriptions retrieved successfully"
+        )
+      );
+  } catch (error) {
+    console.error("Error in listPrescription:", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "server error", error.message));
+  }
 };
 
 const getAllPrescriptionsForUser = async (req, res) => {
-    try {
-        // Get user ID from authenticated user
-        const userId = req.user._id; // Assuming authentication middleware sets req.user
-        
-        // Fetch prescriptions from database
-        const prescriptions = await Prescription.find({ user: userId })
-            .populate({
-                path: 'doctor',
-                select: 'firstName lastName specialization email' // Add or remove fields as needed
-            })
-            .sort({ createdAt: -1 }); // Sort by newest first
-        
-        if (!prescriptions || prescriptions.length === 0) {
-            return res.status(404).json(
-                new ApiResponse(404, null, "No prescriptions found for this user")
-            );
-        }
+  try {
+    const userId = req.user._id;
 
-        // Transform the data to a more client-friendly format
-        const formattedPrescriptions = prescriptions.map(prescription => ({
-            id: prescription._id,
-            prescriptionText: prescription.prescription,
-            date: prescription.date,
-            doctor: {
-                id: prescription.doctor._id,
-                name: `${prescription.doctor.firstName} ${prescription.doctor.lastName}`,
-                specialization: prescription.doctor.specialization,
-                email: prescription.doctor.email
-            },
-            medications: prescription.medication.map(med => ({
-                name: med.name,
-                dosage: med.dosage,
-                time: med.time,
-                intakeTiming: med.intakeTiming,
-                notes: med.notes || "",
-                quantity: med.quantity
-            })),
-            days: prescription.days,
-            createdAt: prescription.createdAt,
-            updatedAt: prescription.updatedAt
-        }));
+    const prescriptions = await Prescription.find({ user: userId })
+      .populate({
+        path: "doctor",
+        select: "firstName lastName specialization email",
+      })
+      .sort({ createdAt: -1 });
 
-        return res.status(200).json(
-            new ApiResponse(
-                200, 
-                formattedPrescriptions,
-                "Prescriptions retrieved successfully"
-            )
-        );
-
-    } catch (error) {
-        console.error('Error in getAllPrescriptionsForUser:', error);
-        throw new ApiError(500, "Error while fetching prescriptions");
+    if (!prescriptions || prescriptions.length === 0) {
+      return res
+        .status(200)
+        .json(new ApiResponse(200, [], "No prescriptions found"));
     }
+
+    const formattedPrescriptions = prescriptions.map((prescription) => ({
+      id: prescription._id,
+      date: prescription.date,
+      doctor: {
+        id: prescription.doctor._id,
+        name: `${prescription.doctor.firstName} ${prescription.doctor.lastName}`,
+        specialization: prescription.doctor.specialization,
+        email: prescription.doctor.email,
+      },
+      prescription: prescription.prescription.map((med) => ({
+        medicineName: med.medicineName,
+        quantity: med.quantity,
+        frequency: med.frequency,
+        timing: med.timing,
+        notes: med.notes || "",
+      })),
+      createdAt: prescription.createdAt,
+      updatedAt: prescription.updatedAt,
+    }));
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          formattedPrescriptions,
+          "Prescriptions retrieved successfully"
+        )
+      );
+  } catch (error) {
+    console.error("Error in getAllPrescriptionsForUser:", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "server error", error.message));
+  }
 };
 
-const getAllPrescriptionsByDoctor = async (req, res) => {
-    try {
-        // Get doctor ID from authenticated user
-        const doctorId = req.user._id; // Assuming authentication middleware sets req.user
-        
-        // Optional query parameters for filtering
-        const {
-            startDate,
-            endDate,
-            sortBy = 'createdAt',
-            sortOrder = -1,
-            page = 1,
-            limit = 10
-        } = req.query;
+const getPrescriptionById = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-        // Build query object
-        const query = { doctor: doctorId };
+    const prescription = await Prescription.findById(id)
+      .populate("user", "firstName lastName email")
+      .populate("doctor", "firstName lastName specialization email");
 
-        // Add date range filter if provided
-        if (startDate || endDate) {
-            query.date = {};
-            if (startDate) query.date.$gte = new Date(startDate);
-            if (endDate) query.date.$lte = new Date(endDate);
-        }
-
-        // Calculate skip value for pagination
-        const skip = (page - 1) * limit;
-
-        // Fetch prescriptions from database with pagination
-        const prescriptions = await Prescription.find(query)
-            .populate({
-                path: 'user',
-                select: 'firstName lastName email phoneNumber' // Add or remove fields as needed
-            })
-            .sort({ [sortBy]: sortOrder })
-            .skip(skip)
-            .limit(Number(limit));
-
-        // Get total count for pagination
-        const totalPrescriptions = await Prescription.countDocuments(query);
-        
-        if (!prescriptions || prescriptions.length === 0) {
-            return res.status(404).json(
-                new ApiResponse(404, null, "No prescriptions found for this doctor")
-            );
-        }
-
-        // Transform the data to a more client-friendly format
-        const formattedPrescriptions = prescriptions.map(prescription => ({
-            id: prescription._id,
-            prescriptionText: prescription.prescription,
-            date: prescription.date,
-            patient: {
-                id: prescription.user._id,
-                name: `${prescription.user.firstName} ${prescription.user.lastName}`,
-                email: prescription.user.email,
-                phoneNumber: prescription.user.phoneNumber
-            },
-            medications: prescription.medication.map(med => ({
-                name: med.name,
-                dosage: med.dosage,
-                time: med.time,
-                intakeTiming: med.intakeTiming,
-                notes: med.notes || "",
-                quantity: med.quantity
-            })),
-            days: prescription.days,
-            createdAt: prescription.createdAt,
-            updatedAt: prescription.updatedAt
-        }));
-
-        // Prepare pagination info
-        const paginationInfo = {
-            currentPage: Number(page),
-            totalPages: Math.ceil(totalPrescriptions / limit),
-            totalPrescriptions,
-            hasNextPage: page * limit < totalPrescriptions,
-            hasPrevPage: page > 1
-        };
-
-        return res.status(200).json(
-            new ApiResponse(
-                200, 
-                {
-                    prescriptions: formattedPrescriptions,
-                    pagination: paginationInfo
-                },
-                "Prescriptions retrieved successfully"
-            )
-        );
-
-    } catch (error) {
-        console.error('Error in getAllPrescriptionsByDoctor:', error);
-        throw new ApiError(500, "Error while fetching prescriptions");
+    if (!prescription) {
+      return res
+        .status(404)
+        .json(new ApiError(404, "Prescription not found", false));
     }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          prescription,
+          "Prescription retrieved successfully"
+        )
+      );
+  } catch (error) {
+    console.error("Error in getPrescriptionById:", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "server error", error.message));
+  }
 };
 
-export { newPrescription,getAllPrescriptionsForUser,getAllPrescriptionsByDoctor };
-
+export {
+  newPrescription,
+  getAllPrescriptionsForUser,
+  getPrescriptionById,
+  listPrescription,
+};
