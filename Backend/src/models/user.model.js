@@ -1,8 +1,8 @@
-import moongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const userSchema = new Schema(
   {
-    firstrName: {
+    firstName: {
       type: String,
       required: true,
     },
@@ -51,12 +51,17 @@ const userSchema = new Schema(
         required: true,
       },
     }),
+    gender:{
+        type: String,
+        required: true,
+        enum: ["Male", "Female", "Other"],
+    }
   },
   {
     timestamps: true,
   }
 );
 
-const User = moongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;
