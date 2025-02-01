@@ -93,6 +93,11 @@ body {
     @apply text-nowrap w-full text-base cursor-pointer px-4 py-2 inline-block rounded-xl border-2 border-border-light bg-background-light text-font-dark hover:bg-background-grey dark:hover:bg-background-greyDark transition disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed;
 }
 
+.btn-danger{
+    font-stretch: 110%;
+    @apply text-nowrap w-full text-base cursor-pointer px-4 py-2 inline-block rounded-xl bg-background-redTranslucent2 text-background-red hover:bg-background-redTranslucent hover:text-background-red transition disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed;
+}
+
 .input-primary {
     font-stretch: 110%;
     @apply w-full px-4 py-[9px] rounded-xl bg-background-light autofill:!bg-background-light dark:autofill:bg-transparent text-font-dark dark:!bg-transparent dark:text-font-light border-2 border-border-light dark:border-border-dark focus:border-border-primary dark:focus:border-primary outline-none focus:ring-[4px] ring-primaryLight2 dark:ring-border-primaryDark transition;
@@ -227,21 +232,31 @@ input:-webkit-autofill:focus {
 }
 
 /* Remove placeholder text in Chrome, Edge, Safari */
-input[type="date"]::-webkit-datetime-edit {
+input[type="date"][value=""]::-webkit-datetime-edit {
     color: transparent;
 }
 
-/* Optional: Show text when user focuses */
-input[type="date"]:focus::-webkit-datetime-edit {
-    color: black;
-}
-
 /* Remove placeholder text in Firefox */
-input[type="date"]::-moz-placeholder {
+input[type="date"][value=""]::-moz-placeholder {
     opacity: 0;
 }
 
 /* Remove placeholder text in Edge */
-input[type="date"]::-ms-input-placeholder {
+input[type="date"][value=""]::-ms-input-placeholder {
+    opacity: 0;
+}
+
+/* Remove placeholder text in Chrome, Edge, Safari */
+input[type="time"][value=""]::-webkit-datetime-edit {
+    color: transparent;
+}
+
+/* Remove placeholder text in Firefox */
+input[type="time"][value=""]::-moz-placeholder {
+    opacity: 0;
+}
+
+/* Remove placeholder text in Edge */
+input[type="time"][value=""]::-ms-input-placeholder {
     opacity: 0;
 }

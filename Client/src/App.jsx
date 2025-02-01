@@ -7,6 +7,7 @@ import SignUp from "./pages/Signup";
 import Appointment from "./pages/Appointment";
 import FindDoctors from "./pages/FindDoctors";
 import Chat from "./pages/ChatBot";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -14,9 +15,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />}>
-          <Route path="/appointments" element={<Appointment />} />
-          <Route path="/find-doctor" element={<FindDoctors />} />
-          <Route path="/chat" element={<Chat />} />
+            <Route path="/appointments" element={<Appointment />} />
+            <Route path="/find-doctor" element={<FindDoctors />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/profile" element={<Profile />} />
             {/* <Route path="/" /> */}
           </Route>
           <Route path="/login" element={<Login />} />

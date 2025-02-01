@@ -113,7 +113,7 @@ export default function Input({ Type, labelText, errorText, type, options = [], 
             <div className={`py-2 relative ${labelText && "pt-6"} ` + extraClasses}>
                 <select
                     {...props}
-                    className={"peer z-10 cursor-pointer bg-transparent appearance-none " + inputClasses}
+                    className={"peer z-10 cursor-pointer bg-transparent appearance-none !py-[10px] " + inputClasses}
                 >
                     <option defaultChecked hidden></option>
                     {options.map((option) => (
@@ -129,6 +129,25 @@ export default function Input({ Type, labelText, errorText, type, options = [], 
                 )}
                 {errorText && (
                     <p className="absolute top-[4.2rem] left-[0rem] z-20 bg-background-redTranslucent backdrop-blur-md rounded-xl px-4 py-2 w-full text-sm text-red-600 dark:text-red-400">
+                        <MdError className="inline-block mr-[2px] mb-[2px]" />
+                        {errorText}
+                    </p>
+                )}
+            </div>
+        );
+    }
+
+    if(type === "time"){
+        return (
+            <div className={`py-2 relative ${labelText && "pt-6"} ` + extraClasses}>
+                <input {...props} type={type} className={"peer z-10 cursor-text bg-transparent !py-[8px] " + inputClasses} />
+                {labelText && (
+                    <label className={"absolute top-[2.15rem] left-4 pointer-events-none text-sm peer-focus:top-0 peer-focus:left-0 font-medium text-font-dark dark:text-font-light transition-all ease-in-out duration-300 z-[0]" + labelClasses}>
+                        {labelText}
+                    </label>
+                )}
+                {errorText && (
+                    <p className="absolute top-[4.2rem] left-[0rem] z-20 bg-background-redTranslucent backdrop-blur-md rounded-xl px-4 py-2 w-full text-sm text-red-600">
                         <MdError className="inline-block mr-[2px] mb-[2px]" />
                         {errorText}
                     </p>
