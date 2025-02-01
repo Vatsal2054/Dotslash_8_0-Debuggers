@@ -75,21 +75,25 @@ class ApiError extends Error {
 const getAllAppointments = async (req, res) => {
   try {
     const userId = req.user._id;
+    const userRole = req.user.role;
+
+    // Build match condition based on user role
+    const matchCondition = userRole === "doctor" 
+      ? { doctorId: userId }
+      : { userId: userId };
 
     const appointments = await Appointment.aggregate([
-      // Match appointments for the current user
+      // Match appointments based on user role
       {
-        $match: {
-          userId: userId
-        }
+        $match: matchCondition
       },
-      // Look up doctor's user details
+      // Look up user details (patient if doctor is viewing, doctor if patient is viewing)
       {
         $lookup: {
           from: 'users',
-          localField: 'doctorId',
+          localField: userRole === "doctor" ? 'userId' : 'doctorId',
           foreignField: '_id',
-          as: 'doctorDetails'
+          as: 'userDetails'
         }
       },
       // Look up doctor's professional details
@@ -103,12 +107,19 @@ const getAllAppointments = async (req, res) => {
       },
       // Unwind the arrays
       {
-        $unwind: '$doctorDetails'
+        $unwind: '$userDetails'
       },
       {
         $unwind: {
           path: '$professionalDetails',
           preserveNullAndEmptyArrays: true
+        }
+      },
+      // Sort by date and time
+      {
+        $sort: {
+          date: -1,
+          time: -1
         }
       },
       // Format the output
@@ -121,15 +132,18 @@ const getAllAppointments = async (req, res) => {
           status: 1,
           notes: 1,
           roomId: 1,
-          doctor: {
-            id: '$doctorDetails._id',
+          participant: {
+            id: '$userDetails._id',
             name: {
-              $concat: ['$doctorDetails.firstName', ' ', '$doctorDetails.lastName']
+              $concat: ['$userDetails.firstName', ' ', '$userDetails.lastName']
             },
-            email: '$doctorDetails.email',
-            phone: '$doctorDetails.phone',
-            avatar: '$doctorDetails.avatar',
-            gender: '$doctorDetails.gender',
+            email: '$userDetails.email',
+            phone: '$userDetails.phone',
+            avatar: '$userDetails.avatar',
+            gender: '$userDetails.gender',
+            role: '$userDetails.role'
+          },
+          doctorDetails: {
             degree: '$professionalDetails.degree',
             specialization: '$professionalDetails.specialization',
             experience: '$professionalDetails.experience',
@@ -141,50 +155,66 @@ const getAllAppointments = async (req, res) => {
       }
     ]);
 
-    if (!appointments.length) {
-      return res.status(404).json({
-        success: false,
-        message: "No appointments found"
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      data: appointments,
-      message: "Appointments retrieved successfully"
-    });
+    return res.status(200).json(
+      new ApiResponse(
+        200, 
+        appointments,
+        appointments.length ? "Appointments retrieved successfully" : "No appointments found"
+      )
+    );
 
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || "Error while fetching appointments"
-    });
+    return res.status(500).json(
+      new ApiError(500, "Error while fetching appointments", error.message)
+    );
   }
 };
-
 
 const updateAppointment = async (req, res) => {
   try {
     const userId = req.user._id;
     const appointmentId = req.params.id;
     const { date, time, notes, type, doctorId } = req.body;
+
+    // Validate if appointment exists and belongs to the user
+    const existingAppointment = await Appointment.findOne({
+      _id: appointmentId,
+      userId
+    });
+
+    if (!existingAppointment) {
+      return res.status(404).json(
+        new ApiError(404, "Appointment not found or unauthorized")
+      );
+    }
+
+    // Validate if the appointment is not in the past
+    if (new Date(`${date} ${time}`) < new Date()) {
+      return res.status(400).json(
+        new ApiError(400, "Cannot update past appointments")
+      );
+    }
+
+    // Generate new roomId if type is changed to online
+    let updateData = { date, time, notes, type, doctorId };
+    if (type === "online" && existingAppointment.type !== "online") {
+      updateData.roomId = generateRoomId();
+    }
+
     const appointment = await Appointment.findOneAndUpdate(
       { _id: appointmentId },
-      { date, time, notes, type, doctorId },
+      updateData,
       { new: true, runValidators: true }
     );
-    if (!appointment) {
-      return res
-        .status(404)
-        .json(new ApiError(404, "Appointment not found", false));
-    }
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(200, appointment, "Appointment updated successfully")
-      );
+
+    return res.status(200).json(
+      new ApiResponse(200, appointment, "Appointment updated successfully")
+    );
+
   } catch (err) {
-    return res.status(500).json(new ApiError(500, "Server Error", err.message));
+    return res.status(500).json(
+      new ApiError(500, "Error while updating appointment", err.message)
+    );
   }
 };
 
