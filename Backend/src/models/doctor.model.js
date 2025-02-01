@@ -1,7 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 
 const doctorSchema = new Schema(
-  { userId: { 
+  { 
+    userId: { 
       type: mongoose.Schema.Types.ObjectId, 
       ref: "User", 
       required: true 
@@ -26,12 +27,15 @@ const doctorSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    timeslot: {
+      type: String, 
+      required: true,
+    },
   },
   {
     timestamps: true,
   }
 );
-
 
 const Doctor = mongoose.model("Doctor", doctorSchema);
 
