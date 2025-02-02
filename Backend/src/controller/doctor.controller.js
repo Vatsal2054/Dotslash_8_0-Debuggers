@@ -273,31 +273,26 @@ const dashboard = async (req, res) => {
       },
     ]);
 
+
+
     // Format stats array
+
     const stats = [
       {
         title: "Today's Appointments",
         value: (dashboardStats.todayAppointments[0]?.total || 0).toString(),
-        color: "from-blue-500 to-blue-600",
-        icon: "HiOutlineCalendar",
       },
       {
         title: "Pending Appointments",
         value: (dashboardStats.pendingAppointments[0]?.total || 0).toString(),
-        color: "from-yellow-500 to-yellow-600",
-        icon: "HiOutlineClock",
       },
       {
         title: "Total Patients",
         value: (totalPatientsCount?.total || 0).toString(),
-        color: "from-emerald-400 to-green",
-        icon: "HiOutlineUsers",
       },
       {
         title: "Completed Appointments",
         value: (dashboardStats.completedAppointments[0]?.total || 0).toString(),
-        color: "from-purple-500 to-purple-600",
-        icon: "HiOutlineCheckCircle",
       },
     ];
 
