@@ -11,6 +11,7 @@ const newPrescription = async (req, res) => {
     }
 
     const user = userId;
+    
 
     console.log(user, doctor, prescription);
     

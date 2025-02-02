@@ -14,7 +14,7 @@ export default function Logout(){
         const res = await logout();
         if(res){
             toast.success("Logged out successfully");
-            navigate("/");
+            navigate("/login");
         }
     }
 

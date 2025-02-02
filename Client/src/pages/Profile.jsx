@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import {
     Mail, Phone, MapPin, User, Calendar, Droplet,
     Ruler, Weight, AlertCircle, Hospital, GraduationCap,
-    Building, Clock, Award
+    Building, Clock
 } from 'lucide-react';
 import { UserContext } from "../context/UserContext";
 

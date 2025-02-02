@@ -26,6 +26,12 @@ export const PatientNavContentInfo = [
         fillIcon: <PiScanDuotone   />
     },
     {
+        name: "Prescriptions",
+        path: "/prescriptions",
+        icon: <PiGearSix />,
+        fillIcon: <PiGearSixDuotone />
+    },
+    {
         name: "Profile",
         path: "/profile",
         icon: <PiUserCircle />,
