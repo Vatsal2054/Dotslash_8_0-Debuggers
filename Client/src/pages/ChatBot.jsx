@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   Send,
   X,
@@ -9,9 +9,12 @@ import {
   AlertCircle,
   MessageCircle,
 } from "lucide-react";
+import AppointmentModal from "../components/Appointment/AppointmentModal";
+import { UserContext } from "../context/UserContext";
 
 const MedicalChatModal = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -28,6 +31,21 @@ const MedicalChatModal = () => {
   ]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+
+  const { bookAppointment } = useContext(UserContext);
+
+  const handleSubmit = async (data) => {
+    console.log(data);
+
+    const res = bookAppointment({
+      ...data,
+      doctorId: selectedDoctor,
+    });
+    if (res) {
+      setModalOpen(false);
+    }
+  };
 
   const handleSend = async () => {
     if (newMessage.trim()) {
@@ -290,9 +308,10 @@ const MedicalChatModal = () => {
                                 className="mt-3 w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg 
                                   py-2 px-4 text-sm font-medium transition-colors duration-200 
                                   flex items-center justify-center space-x-2"
-                                onClick={() =>
-                                  console.log("Book appointment:", doctor)
-                                }
+                                onClick={() => {
+                                  setModalOpen(true);
+                                  setSelectedDoctor(doctor.doctorId);
+                                }}
                               >
                                 <Calendar size={16} />
                                 <span>Book Appointment</span>
@@ -346,6 +365,11 @@ const MedicalChatModal = () => {
           </div>
         </div>
       )}
+      <AppointmentModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleSubmit}
+      />
     </>
   );
 };
