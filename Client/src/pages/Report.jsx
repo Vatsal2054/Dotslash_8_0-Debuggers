@@ -35,7 +35,7 @@ const FileUpload = ({ onAnalysisComplete }) => {
   };
 
   return (
-    <div className="p-8 mx-auto overflow-y-scroll">
+    <div className="p-8 mx-auto overflow-y-auto">
       <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-2xl bg-gray-50">
         <Upload className="w-12 h-12 text-gray-400 mb-4" />
         <label className="cursor-pointer">

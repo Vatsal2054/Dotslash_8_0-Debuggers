@@ -39,7 +39,7 @@ export default function DoctorHome() {
     ];
 
     return (
-        <div className="p-8 space-y-10 max-w-7xl mx-auto">
+        <div className="p-6 space-y-6 max-w-7xl mx-auto">
             {/* Welcome Section */}
             <div className="relative">
                 <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
@@ -66,9 +66,9 @@ export default function DoctorHome() {
             </div>
 
             {/* Today's Appointments */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
                 <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Today&apos;s Appointments</h2>
-                <div className="space-y-4">
+                <div className="space-y-2">
                     {appointments.map((apt, index) => (
                         <div
                             key={index}

@@ -25,7 +25,7 @@ const getStatusColor = (status) => {
 const AppointmentsPage = () => {
     const [appointments, setAppointments] = useState([]);
 
-    const { role, getAppointments, acceptRequest, declineRequest, joinAppointment } = useContext(UserContext);
+    const { role, getAppointments, acceptRequest, declineRequest, joinAppointment, setAppointment } = useContext(UserContext);
 
     const navigate = useNavigate();
 
@@ -63,9 +63,10 @@ const AppointmentsPage = () => {
         }
     }
 
-    async function handleJoinRoom(appointmentId) {
-        const res = await joinAppointment(appointmentId);
+    async function handleJoinRoom(appointment) {
+        const res = await joinAppointment(appointment._id);
         if (res != "") {
+            setAppointment(appointment.userId);
             navigate(`/meeting/${res.roomId}`);
         }
     }
@@ -162,7 +163,7 @@ const AppointmentsPage = () => {
 
                         {(appointment.status === "approved" && role === "patient") && (
                             <div className="p-4 bg-gray-50 dark:bg-gray-700 flex gap-2">
-                                <Button type="PRIMARY" extraClasses="flex-1" onClick={() => handleJoinRoom(appointment._id)}>
+                                <Button type="PRIMARY" extraClasses="flex-1" onClick={() => handleJoinRoom(appointment)}>
                                     Join Room
                                 </Button>
                             </div>
@@ -189,7 +190,7 @@ const AppointmentsPage = () => {
 
                         {(appointment.status === "approved" && role === "doctor") && (
                             <div className="p-4 bg-gray-50 dark:bg-gray-700 flex gap-2">
-                                <Button type="PRIMARY" extraClasses="flex-1" onClick={() => handleJoinRoom(appointment._id)}>
+                                <Button type="PRIMARY" extraClasses="flex-1" onClick={() => handleJoinRoom(appointment)}>
                                     Join Room
                                 </Button>
                             </div>

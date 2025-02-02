@@ -55,7 +55,7 @@ const Prescription = ({ prescriptions, addPrescription, isDoctor }) => {
                         className="border p-2 rounded w-full"
                     />
                     <div className="flex gap-2">
-                        {['Morning', 'Noon', 'Night'].map((time) => (
+                        {['morning', 'afternoon', 'evening'].map((time) => (
                             <label key={time} className="flex items-center">
                                 <input
                                     type="checkbox"
@@ -72,15 +72,17 @@ const Prescription = ({ prescriptions, addPrescription, isDoctor }) => {
                         onChange={(e) => setTiming(e.target.value)}
                         className="border p-2 rounded w-full"
                     >
-                        <option value="Before meal">Before Meal</option>
-                        <option value="During meal">During Meal</option>
-                        <option value="After meal">After Meal</option>
+                        <option value="before meal">Before Meal</option>
+                        <option value="with meal">During Meal</option>
+                        <option value="after meal">After Meal</option>
                     </select>
                     <Button
                         type="PRIMARY"
                         classes="w-full"
                         onClick={handleSubmit}
-                    >Add Prescription</Button>
+                    >
+                        Add Prescription
+                    </Button>
                 </form>
             )}
         </div>

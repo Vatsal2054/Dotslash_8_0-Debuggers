@@ -12,7 +12,7 @@ const MeetingRoom = () => {
     const [prescriptions, setPrescriptions] = useState([]);
     const [isLive, setIsLive] = useState(true);
 
-    const { role } = useContext(UserContext);
+    const { role, submitPrescriptions, currentAppointment } = useContext(UserContext);
 
     const navigate = useNavigate();
 
@@ -23,6 +23,16 @@ const MeetingRoom = () => {
     async function handleEndMeeting(){
         setIsLive(false);
         console.table(prescriptions);
+        console.log(currentAppointment);
+        
+        const res = await submitPrescriptions({
+            userId: currentAppointment,
+            prescription: prescriptions
+        });
+        if(res){
+            console.log("Prescriptions submitted successfully");
+            navigate("/");
+        }
     }
 
     return (
