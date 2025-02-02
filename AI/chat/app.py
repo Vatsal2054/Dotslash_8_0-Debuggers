@@ -209,7 +209,7 @@ class MedicalSystem:
                 
                 if user:
                     doctors.append({
-                        "doctorId": str(doctor["_id"]),
+                        "doctorId": str(user["_id"]),
                         "name": f"{user.get('firstName', '')} {user.get('lastName', '')}",
                         "degree": doctor.get("degree", ""),
                         "experience": doctor.get("experience", ""),

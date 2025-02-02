@@ -17,7 +17,12 @@ const createAppointment = async (req, res) => {
     const userId = req.user._id;
     const { date, time, notes, type, doctorId } = req.body;
 
-    const doctor = await User.findById(doctorId); // Ensure correct model
+    // console.log(typeof(doctorId));
+    const id = new mongoose.Types.ObjectId(doctorId);
+    // console.log(id);
+    const doctor = await User.findById(id);
+    // console.log(doctor);
+    // Ensure correct model
     if (!doctor) {
       return res.status(400).json(new ApiError(400, "Doctor not found", false));
     }
@@ -29,7 +34,7 @@ const createAppointment = async (req, res) => {
 
     const appointment = new Appointment({
       userId,
-      doctorId,
+      doctorId: id,
       date,
       time,
       notes,
@@ -116,7 +121,7 @@ const getAllPatientAppointments = async (req, res) => {
   try {
     const userId = req.user._id;
     const id = new mongoose.Types.ObjectId(userId);
-    
+
     const appointments = await Appointment.aggregate([
       {
         $match: {
@@ -136,7 +141,7 @@ const getAllPatientAppointments = async (req, res) => {
           from: "patients",
           localField: "userId",
           foreignField: "userId",
-          as: "patient_details",  // Changed from "user_details" for clarity
+          as: "patient_details", // Changed from "user_details" for clarity
         },
       },
       {
@@ -160,13 +165,13 @@ const getAllPatientAppointments = async (req, res) => {
                 $arrayToObject: {
                   $filter: {
                     input: { $objectToArray: "$user" },
-                    cond: { $ne: ["$$this.k", "_id"] }
-                  }
-                }
+                    cond: { $ne: ["$$this.k", "_id"] },
+                  },
+                },
               },
-              "$patient_details"
-            ]
-          }
+              "$patient_details",
+            ],
+          },
         },
       },
       {
@@ -179,15 +184,14 @@ const getAllPatientAppointments = async (req, res) => {
     ]);
 
     if (!appointments) {
-      return res
-        .status(404)
-        .json(new ApiError(404, "No appointments found"));
+      return res.status(404).json(new ApiError(404, "No appointments found"));
     }
 
     return res
       .status(200)
-      .json(new ApiResponse(200, appointments, "Appointments fetched successfully"));
-      
+      .json(
+        new ApiResponse(200, appointments, "Appointments fetched successfully")
+      );
   } catch (error) {
     console.error("Error in getAllPatientAppointments:", error);
     return res
