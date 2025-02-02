@@ -13,67 +13,24 @@ CORS(app)
 # Configure Google GenAI
 genai.configure(api_key="AIzaSyD_GXtgGI-vLVLspVtn5wBmdE3MnkrNYJU")
 
-lass MedicalSystem:
+class MedicalReportAnalyzer:
+    # Dictionary of medical specializations and their descriptions
     SPECIALIZATIONS = {
-        "Cardiologist": {
-            "keywords": ["heart", "chest", "blood pressure"],
-            "description": "Heart and cardiovascular system specialist"
-        },
-        "Dermatologist": {
-            "keywords": ["skin", "acne", "rash"],
-            "description": "Skin, hair, and nail conditions specialist"
-        },
-        "Pediatrician": {
-            "keywords": ["child", "infant", "pediatric"],
-            "description": "Children's health specialist"
-        },
-        "Neurologist": {
-            "keywords": ["brain", "headache", "nerve"],
-            "description": "Brain, spinal cord, and nervous system specialist"
-        },
-        "Orthopaedic": {
-            "keywords": ["bone", "joint", "muscle", "fracture"],
-            "description": "Bone and joint specialist"
-        },
-        "Psychiatrist": {
-            "keywords": ["anxiety", "depression", "mental"],
-            "description": "Mental health specialist"
-        },
-        "General Medicine": {
-            "keywords": ["fever", "cold", "cough"],
-            "description": "Primary care and general health conditions"
-        }
-    }
-
-    SPECIALIZATIONS = {
-        "Cardiologist": {
-            "keywords": ["heart", "chest", "blood pressure"],
-            "description": "Heart and cardiovascular system specialist"
-        },
-        "Dermatologist": {
-            "keywords": ["skin", "acne", "rash"],
-            "description": "Skin, hair, and nail conditions specialist"
-        },
-        "Pediatrician": {
-            "keywords": ["child", "infant", "pediatric"],
-            "description": "Children's health specialist"
-        },
-        "Neurologist": {
-            "keywords": ["brain", "headache", "nerve"],
-            "description": "Brain, spinal cord, and nervous system specialist"
-        },
-        "Orthopedist": {
-            "keywords": ["bone", "joint", "muscle", "fracture"],
-            "description": "Bone and joint specialist"
-        },
-        "Psychiatrist": {
-            "keywords": ["anxiety", "depression", "mental"],
-            "description": "Mental health specialist"
-        },
-        "General Medicine": {
-            "keywords": ["fever", "cold", "cough"],
-            "description": "Primary care and general health conditions"
-        }
+        "Cardiologist": "Heart and cardiovascular system specialist",
+        "Dermatologist": "Skin, hair, and nail conditions specialist",
+        "Neurologist": "Brain, spinal cord, and nervous system specialist",
+        "Gastroenterologist": "Digestive system specialist",
+        "Endocrinologist": "Hormone and metabolism specialist",
+        "Pulmonologist": "Respiratory system specialist",
+        "Rheumatologist": "Autoimmune and joint conditions specialist",
+        "Oncologist": "Cancer specialist",
+        "Psychiatrist": "Mental health specialist",
+        "Orthopedist": "Bone and joint specialist",
+        "Nephrologist": "Kidney specialist",
+        "Urologist": "Urinary tract and reproductive system specialist",
+        "ENT": "Ear, nose, and throat specialist",
+        "Ophthalmologist": "Eye specialist",
+        "General Medicine": "Primary care and general health conditions"
     }
 
     def __init__(self):
