@@ -13,7 +13,7 @@ import AppointmentModal from "../components/Appointment/AppointmentModal";
 import { UserContext } from "../context/UserContext";
 
 const MedicalChatModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const {chatOpen, setChatOpen} = useContext(UserContext);
   const [modalOpen, setModalOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -192,7 +192,7 @@ const MedicalChatModal = () => {
 
   // Toggle modal
   const toggleModal = () => {
-    setIsOpen(!isOpen);
+    setChatOpen(!chatOpen);
   };
 
   return (
@@ -208,7 +208,7 @@ const MedicalChatModal = () => {
       </button>
 
       {/* Modal Backdrop */}
-      {isOpen && (
+      {chatOpen && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center 
           justify-center p-4 z-50"
@@ -366,7 +366,7 @@ const MedicalChatModal = () => {
         </div>
       )}
       <AppointmentModal
-        isOpen={modalOpen}
+        chatOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onSubmit={handleSubmit}
       />

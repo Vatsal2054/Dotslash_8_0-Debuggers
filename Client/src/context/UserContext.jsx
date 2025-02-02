@@ -2,6 +2,8 @@ import { createContext } from "react";
 
 export const UserContext = createContext({
     userInfo : {},
+    chatOpen: false,
+    setChatOpen: () => {},
     role: "",
     currentAppointment: {},
     setAppointment: () => {},
@@ -15,5 +17,7 @@ export const UserContext = createContext({
     declineRequest: () => {},
     joinAppointment: () => {},
     submitPrescriptions: () => {},
-    logout: () => {}
+    logout: () => {},
+    updateAppointmentTime: () => {},
+    getDashboardInfo: () => {},
 })

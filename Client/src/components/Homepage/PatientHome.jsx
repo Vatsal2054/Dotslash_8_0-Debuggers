@@ -10,7 +10,7 @@ import { UserContext } from "../../context/UserContext";
 
 export default function PatientHome() {
   const navigate = useNavigate();
-  const { userInfo } = useContext(UserContext);
+  const { userInfo, setChatOpen } = useContext(UserContext);
 
   const services = [
     {
@@ -28,7 +28,7 @@ export default function PatientHome() {
     {
       title: "Chat with Bot",
       description: "Get quick answers to your health queries",
-      path: "/chat",
+      path: "/",
       icon: <HiOutlineChatAlt2 className="w-8 h-8 text-green" />,
     },
     {
@@ -55,7 +55,7 @@ export default function PatientHome() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <button
-          onClick={() => navigate("/chat")}
+          onClick={() => setChatOpen(true)}
           className="group relative overflow-hidden p-8 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
         >
           <div className="relative z-10">
@@ -83,7 +83,10 @@ export default function PatientHome() {
         {services.map((service) => (
           <div
             key={service.title}
-            onClick={() => navigate(service.path)}
+            onClick={() => {
+              service.title === "Chat with Bot" && setChatOpen(true) 
+              navigate(service.path)
+            }}
             className="group bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border border-gray-100 dark:border-gray-700"
           >
             <div className="mb-4">{service.icon}</div>
