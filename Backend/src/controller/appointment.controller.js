@@ -225,8 +225,9 @@ const updateAppointment = async (req, res) => {
     const userId = req.user._id;
     const appointmentId = req.params.id;
     const { date, time, notes, type, doctorId } = req.body;
+    const id = new mongoose.Types.ObjectId(appointmentId);
     const appointment = await Appointment.findOneAndUpdate(
-      { _id: appointmentId },
+      { _id: id },
       { date, time, notes, type, doctorId },
       { new: true, runValidators: true }
     );

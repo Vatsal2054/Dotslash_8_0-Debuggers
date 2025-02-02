@@ -6,6 +6,8 @@ import { formatDate, getAge } from "../helpers/Data/formatDate";
 import { PiMapPin } from "react-icons/pi";
 import { useNavigate } from "react-router";
 import Container from "../components/UI/Container";
+import UpdateTimeModal from "../components/Appointment/UpdateTimeModal";
+import toast from "react-hot-toast";
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -24,8 +26,10 @@ const getStatusColor = (status) => {
 
 const AppointmentsPage = () => {
     const [appointments, setAppointments] = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
-    const { role, getAppointments, acceptRequest, declineRequest, joinAppointment, setAppointment } = useContext(UserContext);
+    const { role, getAppointments, acceptRequest, declineRequest, joinAppointment, setAppointment, updateAppointmentTime } = useContext(UserContext);
 
     const navigate = useNavigate();
 
@@ -39,11 +43,7 @@ const AppointmentsPage = () => {
         if (res) {
             setAppointments(res);
         }
-    } 
-
-    const handleUpdateTime = (appointmentId) => {
-        alert(`Update time for appointment ${appointmentId}`);
-    };
+    }
 
     const handleCancel = (appointmentId) => {
         alert(`Cancel appointment ${appointmentId}`);
@@ -68,6 +68,18 @@ const AppointmentsPage = () => {
         if (res != "") {
             setAppointment(appointment.userId);
             navigate(`/meeting/${res.roomId}`);
+        }
+    }
+
+    async function handleTimeUpdate(formData) {
+        console.log(formData);
+        const res = await updateAppointmentTime({
+            ...selectedAppointment,
+            ...formData,
+        });
+        if (res) {
+            setIsOpen(false);
+            toast.success("Appointment time updated successfully");
         }
     }
 
@@ -108,7 +120,7 @@ const AppointmentsPage = () => {
                                     <div className="flex items-start gap-2">
                                         <PiMapPin className="!w-4 !h-4 mt-1" />
                                         <span>
-                                        {appointment.user.address.street}, {appointment.user.address.city}, {appointment.user.address.state }, {appointment.user.address.zip}
+                                            {appointment.user.address.street}, {appointment.user.address.city}, {appointment.user.address.state}, {appointment.user.address.zip}
                                         </span>
                                     </div>
                                 </div>
@@ -147,7 +159,10 @@ const AppointmentsPage = () => {
                                 <Button
                                     type="PRIMARY"
                                     extraClasses="flex-1"
-                                    onClick={() => handleUpdateTime(appointment._id)}
+                                    onClick={() => {
+                                        setSelectedAppointment(appointment);
+                                        setIsOpen(true);
+                                    }}
                                 >
                                     Update Time
                                 </Button>
@@ -198,6 +213,11 @@ const AppointmentsPage = () => {
                     </Container>
                 ))}
             </div>
+            <UpdateTimeModal
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+                onSubmit={handleTimeUpdate}
+            />
         </div>
     );
 };
