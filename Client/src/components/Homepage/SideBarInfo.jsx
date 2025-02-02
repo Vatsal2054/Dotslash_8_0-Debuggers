@@ -1,4 +1,4 @@
-import { PiChats, PiScanDuotone , PiClipboardText, PiClipboardTextDuotone, PiGearSix, PiGearSixDuotone, PiHouse, PiHouseDuotone, PiMagnifyingGlass, PiMagnifyingGlassDuotone, PiUserCircle, PiUserCircleDuotone, PiScan } from "react-icons/pi";
+import { PiChats, PiScanDuotone , PiClipboardText, PiClipboardTextDuotone, PiGearSix, PiGearSixDuotone, PiHouse, PiHouseDuotone, PiMagnifyingGlass, PiMagnifyingGlassDuotone, PiUserCircle, PiUserCircleDuotone, PiScan, PiPill, PiPillDuotone } from "react-icons/pi";
 
 export const PatientNavContentInfo = [
     {
@@ -28,8 +28,8 @@ export const PatientNavContentInfo = [
     {
         name: "Prescriptions",
         path: "/prescriptions",
-        icon: <PiGearSix />,
-        fillIcon: <PiGearSixDuotone />
+        icon: <PiPill />,
+        fillIcon: <PiPillDuotone />
     },
     {
         name: "Profile",
