@@ -1,5 +1,5 @@
 import { ApiError } from "./ApiError.js";
-const nodemailer = require('nodemailer');
+import nodemailer from "nodemailer";
 const isDoctor = (req, res, next) => {
   if (req.user.role === "doctor") {
     next();
