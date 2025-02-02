@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 export default function UserContextProvider({ children }) {
     const [userInfo, setUserInfo] = useState({});
     const [currentAppointment, setCurrentAppointment] = useState({});
+
     
     function setUserData(data){
         setUserInfo(data);
@@ -135,6 +136,17 @@ export default function UserContextProvider({ children }) {
         return false;
     }
 
+    async function handleLogout(){
+        const res = await getApi("/auth/logout");
+        console.log(res);
+        if(res.status === 200){
+            console.log("Logged out successfully");
+            setUserInfo({});
+            return true;
+        }
+        return false;
+    }
+
     const ctxValue = {
         userInfo: userInfo,
         setUserInfo: setUserData,
@@ -150,6 +162,7 @@ export default function UserContextProvider({ children }) {
         declineRequest: handleDeclineAppointment,
         joinAppointment: handleJoinAppointment,
         submitPrescriptions: handleSubmitPrescriptions,
+        logout: handleLogout
     }
 
     return (

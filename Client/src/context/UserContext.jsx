@@ -15,4 +15,5 @@ export const UserContext = createContext({
     declineRequest: () => {},
     joinAppointment: () => {},
     submitPrescriptions: () => {},
+    logout: () => {}
 })
