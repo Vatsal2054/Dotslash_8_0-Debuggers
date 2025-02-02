@@ -1,36 +1,24 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../context/UserContext";
 import { HiOutlineUsers, HiOutlineClock, HiOutlineCheckCircle, HiOutlineCalendar } from "react-icons/hi";
 
 export default function DoctorHome() {
-    const { userInfo } = useContext(UserContext);
+    const [dashboardInfo, setDashboardInfo] = useState({});
 
-    const stats = [
-        {
-            title: "Today's Appointments",
-            value: "8",
-            color: "from-blue-500 to-blue-600",
-            icon: <HiOutlineCalendar className="w-6 h-6" />
-        },
-        {
-            title: "Pending Appointments",
-            value: "12",
-            color: "from-yellow-500 to-yellow-600",
-            icon: <HiOutlineClock className="w-6 h-6" />
-        },
-        {
-            title: "Total Patients",
-            value: "145",
-            color: "from-emerald-400 to-green",
-            icon: <HiOutlineUsers className="w-6 h-6" />
-        },
-        {
-            title: "Completed Appointments",
-            value: "1,234",
-            color: "from-purple-500 to-purple-600",
-            icon: <HiOutlineCheckCircle className="w-6 h-6" />
+    const { userInfo, getDashboardInfo } = useContext(UserContext);
+
+    useEffect(() => {
+        handleGetDashboardInfo();
+    }, []);
+
+    async function handleGetDashboardInfo() {
+        const res = await getDashboardInfo();
+        console.log(res);
+        if (res) {
+            setDashboardInfo(res);
         }
-    ];
+    }
+
 
     const appointments = [
         { time: "09:00 AM", patient: "John Doe", status: "Confirmed" },
@@ -50,19 +38,45 @@ export default function DoctorHome() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat) => (
-                    <div
-                        key={stat.title}
-                        className="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700"
-                    >
-                        <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-full transform translate-x-8 -translate-y-8`}></div>
-                        <div className={`inline-flex items-center justify-center p-3 rounded-lg bg-gradient-to-br ${stat.color} text-white mb-4`}>
-                            {stat.icon}
-                        </div>
-                        <h3 className="text-gray-600 dark:text-gray-300 mb-2">{stat.title}</h3>
-                        <p className="text-3xl font-bold text-gray-800 dark:text-white">{stat.value}</p>
+                {/* Today's Appointments Card */}
+                <div className="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 opacity-10 rounded-full transform translate-x-8 -translate-y-8"></div>
+                    <div className="inline-flex items-center justify-center p-3 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-4">
+                        <HiOutlineCalendar className="w-6 h-6" />
                     </div>
-                ))}
+                    <h3 className="text-gray-600 dark:text-gray-300 mb-2">{dashboardInfo.stats[0].title}</h3>
+                    <p className="text-3xl font-bold text-gray-800 dark:text-white">{dashboardInfo.stats[0].value}</p>
+                </div>
+
+                {/* Pending Appointments Card */}
+                <div className="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-yellow-500 to-yellow-600 opacity-10 rounded-full transform translate-x-8 -translate-y-8"></div>
+                    <div className="inline-flex items-center justify-center p-3 rounded-lg bg-gradient-to-br from-yellow-500 to-yellow-600 text-white mb-4">
+                        <HiOutlineClock className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-gray-600 dark:text-gray-300 mb-2">{dashboardInfo.stats[1].title}</h3>
+                    <p className="text-3xl font-bold text-gray-800 dark:text-white">{dashboardInfo.stats[1].value}</p>
+                </div>
+
+                {/* Total Patients Card */}
+                <div className="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-400 to-green opacity-10 rounded-full transform translate-x-8 -translate-y-8"></div>
+                    <div className="inline-flex items-center justify-center p-3 rounded-lg bg-gradient-to-br from-emerald-400 to-green text-white mb-4">
+                        <HiOutlineUsers className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-gray-600 dark:text-gray-300 mb-2">{dashboardInfo.stats[2].title}</h3>
+                    <p className="text-3xl font-bold text-gray-800 dark:text-white">{dashboardInfo.stats[2].value}</p>
+                </div>
+
+                {/* Completed Appointments Card */}
+                <div className="relative overflow-hidden bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 dark:border-gray-700">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 opacity-10 rounded-full transform translate-x-8 -translate-y-8"></div>
+                    <div className="inline-flex items-center justify-center p-3 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white mb-4">
+                        <HiOutlineCheckCircle className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-gray-600 dark:text-gray-300 mb-2">{dashboardInfo.stats[3].title}</h3>
+                    <p className="text-3xl font-bold text-gray-800 dark:text-white">{dashboardInfo.stats[3].value}</p>
+                </div>
             </div>
 
             {/* Today's Appointments */}
@@ -83,11 +97,10 @@ export default function DoctorHome() {
                                 </div>
                             </div>
                             <div
-                                className={`px-4 py-2 rounded-full text-sm font-medium ${
-                                    apt.status === "Confirmed"
+                                className={`px-4 py-2 rounded-full text-sm font-medium ${apt.status === "Confirmed"
                                         ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
                                         : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
-                                }`}
+                                    }`}
                             >
                                 {apt.status}
                             </div>

@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 export default function UserContextProvider({ children }) {
     const [userInfo, setUserInfo] = useState({});
     const [currentAppointment, setCurrentAppointment] = useState({});
+    const [chatOpen, setChatOpen] = useState(false);
 
     
     function setUserData(data){
@@ -147,9 +148,36 @@ export default function UserContextProvider({ children }) {
         return false;
     }
 
+    async function handleUpdateAppointmentTime(data){
+        console.log(data._id);
+        
+        const res = await putApi(`/appointment/${data._id}`, data);
+        console.log(res);
+        if(res.status === 200){
+            toast.success("Appointment time updated successfully");
+            console.log("Appointment time updated successfully");
+            return true;
+        }
+    }
+
+    async function handleGetDashboardInfo(){
+        if(userInfo.role === "patient"){
+            return;
+        }
+        const res = await getApi("/doctor/");
+        console.log(res);
+        if(res.status === 200){
+            console.log("Dashboard info fetched successfully");
+            return res.data.data;
+        }
+        return false
+    }
+
     const ctxValue = {
         userInfo: userInfo,
         setUserInfo: setUserData,
+        chatOpen: chatOpen,
+        setChatOpen: setChatOpen,
         role: userInfo.role,
         currentAppointment: currentAppointment,
         setAppointment: setCurrentAppointment,
@@ -162,7 +190,9 @@ export default function UserContextProvider({ children }) {
         declineRequest: handleDeclineAppointment,
         joinAppointment: handleJoinAppointment,
         submitPrescriptions: handleSubmitPrescriptions,
-        logout: handleLogout
+        logout: handleLogout,
+        updateAppointmentTime: handleUpdateAppointmentTime,
+        getDashboardInfo: handleGetDashboardInfo
     }
 
     return (

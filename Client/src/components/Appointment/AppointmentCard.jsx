@@ -1,5 +1,7 @@
 import { Calendar, Clock, User, Video, MapPin } from "lucide-react";
 import Button from "../UI/Buttons";
+import UpdateTimeModal from "./UpdateTimeModal";
+
 
 const AppointmentCard = ({
   appointment,
@@ -10,6 +12,8 @@ const AppointmentCard = ({
   onDecline,
 }) => {
   const { type, date, time, doctorName, status, notes } = appointment;
+
+  
 
   const getStatusColor = () => {
     switch (status) {
@@ -25,6 +29,7 @@ const AppointmentCard = ({
   };
 
   return (
+    <>
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
       {/* Status Badge */}
       <div
@@ -105,6 +110,7 @@ const AppointmentCard = ({
         )}
       </div>
     </div>
+    </>
   );
 };
 
