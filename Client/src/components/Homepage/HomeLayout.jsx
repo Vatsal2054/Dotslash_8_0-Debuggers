@@ -2,6 +2,7 @@ import { Outlet } from "react-router";
 import SideMenu from "./SideBar";
 import Header from "./Header";
 import Container from "../UI/Container";
+import MedicalChatModal from "../../pages/ChatBot";
 
 export default function HomeLayout({ role, children }) {
     return (
@@ -13,6 +14,7 @@ export default function HomeLayout({ role, children }) {
                     <Container classes="h-[100%] overflow-hidden">
                         <Outlet />
                     </Container>
+                    <MedicalChatModal />
                 </div>
             </main>
         </main>
