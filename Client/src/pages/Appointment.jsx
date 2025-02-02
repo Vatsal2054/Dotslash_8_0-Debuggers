@@ -25,7 +25,7 @@ const getStatusColor = (status) => {
 const AppointmentsPage = () => {
     const [appointments, setAppointments] = useState([]);
 
-    const { role, getAppointments, acceptRequest, declineRequest, joinAppointment } = useContext(UserContext);
+    const { role, getAppointments, acceptRequest, declineRequest, joinAppointment, setAppointment } = useContext(UserContext);
 
     const navigate = useNavigate();
 
@@ -63,12 +63,13 @@ const AppointmentsPage = () => {
         }
     }
 
-    // async function handleJoinRoom(appointmentId) {
-    //     const res = await joinAppointment(appointmentId);
-    //     if (res != "") {
-    //         navigate(`/meeting/${res}`);
-    //     }
-    // }
+    async function handleJoinRoom(appointment) {
+        const res = await joinAppointment(appointment._id);
+        if (res != "") {
+            setAppointment(appointment.userId);
+            navigate(`/meeting/${res.roomId}`);
+        }
+    }
 
     return (
         <div className="p-6">
@@ -79,7 +80,7 @@ const AppointmentsPage = () => {
                 {appointments.map((appointment) => (
                     <Container
                         key={appointment._id}
-                        className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden"
+                        classes="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden"
                     >
                         <div className="p-4">
                             <div className="flex justify-between items-center mb-2">
@@ -119,7 +120,7 @@ const AppointmentsPage = () => {
                                 </p>
                             )}
 
-                            <div className="space-y-3">
+                            <div className="space-y-3 text-sm">
                                 <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                                     <Calendar className="w-4 h-4" />
                                     <span>{formatDate(appointment.date)}</span>
@@ -146,14 +147,14 @@ const AppointmentsPage = () => {
                                 <Button
                                     type="PRIMARY"
                                     extraClasses="flex-1"
-                                    onClick={() => handleUpdateTime(appointment.id)}
+                                    onClick={() => handleUpdateTime(appointment._id)}
                                 >
                                     Update Time
                                 </Button>
                                 <Button
                                     type="DANGER"
                                     extraClasses="flex-1"
-                                    onClick={() => handleCancel(appointment.id)}
+                                    onClick={() => handleCancel(appointment._id)}
                                 >
                                     Cancel
                                 </Button>
@@ -162,7 +163,7 @@ const AppointmentsPage = () => {
 
                         {(appointment.status === "approved" && role === "patient") && (
                             <div className="p-4 bg-gray-50 dark:bg-gray-700 flex gap-2">
-                                <Button type="PRIMARY" extraClasses="flex-1" onClick={() => handleCancel(appointment.id)}>
+                                <Button type="PRIMARY" extraClasses="flex-1" onClick={() => handleJoinRoom(appointment)}>
                                     Join Room
                                 </Button>
                             </div>
@@ -183,6 +184,14 @@ const AppointmentsPage = () => {
                                     onClick={() => handleDeclineRequest(appointment._id)}
                                 >
                                     Decline
+                                </Button>
+                            </div>
+                        )}
+
+                        {(appointment.status === "approved" && role === "doctor") && (
+                            <div className="p-4 bg-gray-50 dark:bg-gray-700 flex gap-2">
+                                <Button type="PRIMARY" extraClasses="flex-1" onClick={() => handleJoinRoom(appointment)}>
+                                    Join Room
                                 </Button>
                             </div>
                         )}

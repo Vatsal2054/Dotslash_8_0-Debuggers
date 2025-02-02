@@ -7,7 +7,8 @@ import toast from "react-hot-toast";
 
 export default function UserContextProvider({ children }) {
     const [userInfo, setUserInfo] = useState({});
-    const [doctors, setDoctors] = useState([]);
+    const [currentAppointment, setCurrentAppointment] = useState({});
+
     
     function setUserData(data){
         setUserInfo(data);
@@ -114,7 +115,7 @@ export default function UserContextProvider({ children }) {
     }
 
     async function handleJoinAppointment(appointmentId){
-        const res = await putApi(`/appointment/join/${appointmentId}`);
+        const res = await getApi(`/appointment/join/${appointmentId}`);
         console.log(res);
         if(res.status === 200){
             // toast.success("Appointment joined successfully");
@@ -124,10 +125,34 @@ export default function UserContextProvider({ children }) {
         return false;
     }
 
+    async function handleSubmitPrescriptions(data){
+        const res = await postApi("/prescription/", data);
+        console.log(res);
+        if(res.status === 200){
+            toast.success("Prescriptions submitted successfully");
+            console.log("Prescriptions submitted successfully");
+            return res.data.data;
+        }
+        return false;
+    }
+
+    async function handleLogout(){
+        const res = await getApi("/auth/logout");
+        console.log(res);
+        if(res.status === 200){
+            console.log("Logged out successfully");
+            setUserInfo({});
+            return true;
+        }
+        return false;
+    }
+
     const ctxValue = {
         userInfo: userInfo,
         setUserInfo: setUserData,
         role: userInfo.role,
+        currentAppointment: currentAppointment,
+        setAppointment: setCurrentAppointment,
         pingUser: handlePingUser,
         getDoctors: handleGetDoctors,
         getDoctorsByCity: handleGetDoctorsByCity,
@@ -136,6 +161,8 @@ export default function UserContextProvider({ children }) {
         acceptRequest: handleAcceptAppointment,
         declineRequest: handleDeclineAppointment,
         joinAppointment: handleJoinAppointment,
+        submitPrescriptions: handleSubmitPrescriptions,
+        logout: handleLogout
     }
 
     return (

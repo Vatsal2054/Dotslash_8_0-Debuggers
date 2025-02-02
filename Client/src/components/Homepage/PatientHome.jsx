@@ -67,11 +67,11 @@ export default function PatientHome() {
           <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white opacity-10 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out"></div>
         </button>
         <button
-          onClick={() => navigate("/find-doctor")}
+          onClick={() => navigate("/report")}
           className="group relative overflow-hidden p-8 rounded-2xl bg-gradient-to-br from-green to-green text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
         >
           <div className="relative z-10">
-            <h3 className="text-2xl font-semibold mb-2">Book Appointment</h3>
+            <h3 className="text-2xl font-semibold mb-2">Analyze Report</h3>
             <p className="opacity-90">Schedule your next consultation</p>
           </div>
           <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white opacity-10 rounded-full group-hover:scale-150 transition-transform duration-500 ease-in-out"></div>

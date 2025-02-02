@@ -1,16 +1,18 @@
 import { Router } from "express";
 import { isAuthenticated } from "../middleware/auth.middleware.js";
-import { newPrescription,getAllPrescriptionsForUser,getAllPrescriptionsByDoctor } from "../controller/prescription.controller.js";
+import {
+  newPrescription,
+  getPrescriptionById,
+  listPrescription,
+} from "../controller/prescription.controller.js";
+import { isDoctor, isPatient } from "../utils/helper.js";
 
 const router = Router();
 
-router.post("/newPrescription",newPrescription);
+router.post("/", isAuthenticated, isDoctor, newPrescription);
 
-router.get("/getAllPrescriptionsForUser",isAuthenticated,getAllPrescriptionsForUser);
+router.get("/", isAuthenticated,  listPrescription);
 
-router.get("/getAllPrescriptionsByDoctor",isAuthenticated,getAllPrescriptionsByDoctor);
-
-
-
+router.get("/:id", isAuthenticated,getPrescriptionById );
 
 export default router;

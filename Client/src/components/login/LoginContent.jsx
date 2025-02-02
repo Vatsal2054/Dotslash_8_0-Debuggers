@@ -60,10 +60,6 @@ export default function LoginContent() {
         if (res) navigate("/");
     }
 
-    async function handleGoogleLogin() {
-        await googleLogin();
-    }
-
 
     return (
         <main>
